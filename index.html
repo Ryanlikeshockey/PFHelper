@@ -1162,7 +1162,7 @@
               Project Flight Airports
             </h2>
             <p class="text-xs text-slate-400 mt-1">
-              Select an airfield to view available diagrams & procedures.
+              Select an airport to view available charts & information.
             </p>
             <button onclick="openToolInfo('charts', event)" class="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline">
               <i data-lucide="circle-help" class="w-3.5 h-3.5"></i><span data-i18n="learn_tool">How to use</span>
@@ -1248,7 +1248,7 @@
           </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2" aria-label="Chart tools">
+        <div id="chart-tools" class="hidden flex flex-wrap items-center gap-2" aria-label="Chart tools">
           <button id="chart-zoom-out" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Zoom out"><i data-lucide="zoom-out" class="w-3.5 h-3.5 inline"></i></button>
           <span id="chart-zoom-label" class="text-xs font-mono text-slate-500 min-w-12 text-center">100%</span>
           <button id="chart-zoom-in" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Zoom in"><i data-lucide="zoom-in" class="w-3.5 h-3.5 inline"></i></button>
@@ -1341,7 +1341,7 @@
               <label
                 for="fb-username"
                 class="block font-bold text-slate-700 dark:text-slate-300 mb-1"
-                >Your Roblox Username / Callsign</label
+                >Your Roblox Username (Optional)</label
               >
               <input
                 type="text"
@@ -1833,7 +1833,7 @@
           footer_brand: "PFHelper • Project Flight Tools",
           hub_welcome: "Welcome to",
           hub_desc:
-            "Your go-to hub for Project Flight. Pick a tool or check out the community resources below to get started.",
+            "Your hub for Project Flight. Pick a tool or check out the community resources below to get started.",
           atc_tool_desc:
             "Get instant, ready-to-use ATC radio calls for every phase of flight, emergencies, and diversions.",
           charts_tool_desc:
@@ -2432,6 +2432,17 @@
         });
       }
 
+      function preloadChartCatalog() {
+        const entries = Object.values(chartAssetCatalog).flat();
+        const start = () => preloadChartEntries(entries);
+        if (window.requestIdleCallback) window.requestIdleCallback(start, { timeout: 1500 });
+        else window.setTimeout(start, 300);
+      }
+
+      function setChartToolsVisible(visible) {
+        document.getElementById("chart-tools")?.classList.toggle("hidden", !visible);
+      }
+
       // NATO Phonetics dictionary
       const natoAlphabet = {
         A: "Alpha",
@@ -2614,9 +2625,17 @@
         },
       ];
 
-      let templates =
-        JSON.parse(localStorage.getItem("pfhelper_templates")) ||
-        JSON.parse(JSON.stringify(defaultTemplates));
+      function readStoredTemplates() {
+        try {
+          const stored = JSON.parse(localStorage.getItem("pfhelper_templates"));
+          return Array.isArray(stored) ? stored : JSON.parse(JSON.stringify(defaultTemplates));
+        } catch (error) {
+          localStorage.removeItem("pfhelper_templates");
+          return JSON.parse(JSON.stringify(defaultTemplates));
+        }
+      }
+
+      let templates = readStoredTemplates();
 
       // Page Switching (Hub, ATCHelper, CHARTSHelper, Feedback)
       function switchView(view) {
@@ -2651,6 +2670,7 @@
         renderScriptCards();
         renderChartAirportList();
         renderChartLanding();
+        preloadChartCatalog();
         toggleChartUploadSection();
         translatePage(currentLang);
         applyAccessibilityPreferences();
@@ -2861,6 +2881,7 @@
         const container = document.getElementById("chart-display-card");
         const titleEl = document.getElementById("active-chart-airport-title");
         if (!container) return;
+        setChartToolsVisible(false);
         if (titleEl) titleEl.innerHTML = `<span class="text-slate-500 dark:text-slate-400">Select an airport to open its charts</span>`;
         container.innerHTML = `
           <div class="chart-stage w-full flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800">
@@ -2914,17 +2935,19 @@
         const entries = getChartEntries(ap, selectedChartType);
         updateChartTypeTabs(ap);
         if (!entries.length) {
+          setChartToolsVisible(false);
           container.innerHTML = `
             <div class="chart-stage w-full flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800">
               <div class="text-center max-w-sm p-6">
                 <i data-lucide="map-off" class="w-12 h-12 text-slate-400 mx-auto"></i>
                 <h3 class="mt-3 text-base font-bold text-slate-900 dark:text-white">No ${selectedChartType.toUpperCase()} chart available</h3>
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">This airport does not have a bundled chart for this procedure yet.</p>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">This airport does not have a chart for this procedure yet. One will be added as Update 9.0 continues to roll out.</p>
               </div>
             </div>`;
           lucide.createIcons();
           return;
         }
+        setChartToolsVisible(true);
         preloadChartEntries(entries);
         selectedChartIndex = Math.min(selectedChartIndex, entries.length - 1);
         const entry = entries[selectedChartIndex];
@@ -3508,11 +3531,11 @@
                   ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
                   : "bg-slate-100 dark:bg-slate-800 theme-accent-text border border-slate-200 dark:border-slate-700"
               }">
-                ${item.title.split(".")[0]}
+                ${escapeHtml(item.title.split(".")[0])}
               </span>
-              <h3 class="text-sm font-bold text-slate-900 dark:text-white">${item.title.substring(
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white">${escapeHtml(item.title.substring(
                 item.title.indexOf(".") + 1
-              )}</h3>
+              ))}</h3>
             </div>
             <span class="text-xs font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1 bg-slate-100 dark:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800">
               <i data-lucide="antenna" class="w-3 h-3 theme-accent-text"></i>
@@ -3680,10 +3703,10 @@
             "bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3";
           itemDiv.innerHTML = `
           <div class="flex items-center justify-between">
-            <span class="font-bold theme-accent-text text-xs">${t.title}</span>
-            <span class="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-mono">${
+            <span class="font-bold theme-accent-text text-xs">${escapeHtml(t.title)}</span>
+            <span class="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-mono">${escapeHtml(
               t.phase
-            }</span>
+            )}</span>
           </div>
           <div>
             <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Pilot Request:</label>
@@ -3980,7 +4003,7 @@
         const toast = document.createElement("div");
         toast.className =
           "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-800 dark:border-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold shadow-xl flex items-center gap-2 pointer-events-auto transition-all transform translate-y-2 opacity-0";
-        toast.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 theme-accent-text"></i><span>${message}</span>`;
+        toast.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 theme-accent-text"></i><span>${escapeHtml(String(message))}</span>`;
 
         container.appendChild(toast);
         lucide.createIcons();
