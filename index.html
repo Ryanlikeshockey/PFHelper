@@ -1252,15 +1252,6 @@
           <button id="chart-zoom-out" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Zoom out"><i data-lucide="zoom-out" class="w-3.5 h-3.5 inline"></i></button>
           <span id="chart-zoom-label" class="text-xs font-mono text-slate-500 min-w-12 text-center">100%</span>
           <button id="chart-zoom-in" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Zoom in"><i data-lucide="zoom-in" class="w-3.5 h-3.5 inline"></i></button>
-          <label class="flex items-center gap-1 text-[10px] text-slate-500" title="Zoom step">
-            <span>Step</span>
-            <select id="chart-zoom-step" class="bg-slate-100 dark:bg-slate-800 rounded-lg px-1.5 py-1 text-xs font-mono">
-              <option value="5">5%</option>
-              <option value="10" selected>10%</option>
-              <option value="25">25%</option>
-              <option value="50">50%</option>
-            </select>
-          </label>
           <button onclick="rotateChart()" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Rotate chart 90 degrees"><i data-lucide="rotate-cw" class="w-3.5 h-3.5 inline"></i></button>
           <button onclick="toggleChartDrawing()" id="chart-draw-button" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Draw on chart"><i data-lucide="pen-line" class="w-3.5 h-3.5 inline"></i> Draw</button>
           <button onclick="toggleChartGrid()" id="chart-grid-button" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Toggle chart grid"><i data-lucide="grid-2x2" class="w-3.5 h-3.5 inline"></i></button>
@@ -2965,6 +2956,8 @@
         const image = document.getElementById("active-chart-image");
         image.onload = () => {
           document.getElementById("chart-stage")?.classList.add("chart-ready");
+          chartViewState.zoom = 1;
+          chartViewState.rotation = 0;
           fitChartImage();
           syncDrawingCanvas();
         };
@@ -3054,8 +3047,8 @@
       }
 
       function changeChartZoom(steps) {
-        const zoomStep = Number(document.getElementById("chart-zoom-step")?.value || 10) / 100;
-        chartViewState.zoom = Math.min(20, Math.max(0.05, Math.round((chartViewState.zoom + steps * zoomStep) / zoomStep) * zoomStep));
+        const zoomStep = 0.1;
+        chartViewState.zoom = Math.min(20, Math.max(0.1, Math.round((chartViewState.zoom + steps * zoomStep) / zoomStep) * zoomStep));
         updateChartTransform();
       }
 
