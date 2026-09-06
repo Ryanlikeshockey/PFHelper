@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PFHelper - Roblox Project Flight Aviation Suite</title>
+    <title>PFHelper - Project Flight Tools</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -148,10 +148,121 @@
       ::-webkit-scrollbar-thumb:hover {
         background: rgba(107, 114, 128, 0.7);
       }
+
+      .chart-stage {
+        height: min(70vh, 760px);
+        min-height: 360px;
+        touch-action: none;
+        background-color: rgba(148, 163, 184, 0.08);
+        background-image: linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      .chart-stage img {
+        transform-origin: center center;
+        user-select: none;
+        -webkit-user-drag: none;
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+      }
+      .chart-drawing-layer {
+        cursor: crosshair;
+      }
+      .chart-stage {
+        animation: chartStageIn 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      .chart-stage.chart-grid-hidden {
+        background-image: none;
+      }
+      .chart-loading-state {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.04), rgba(14, 165, 233, 0.12));
+        z-index: 2;
+      }
+      .chart-loader-orbit {
+        width: 4rem;
+        height: 4rem;
+        border: 3px solid rgba(14, 165, 233, 0.2);
+        border-top-color: var(--accent-main);
+        border-right-color: #f59e0b;
+        border-radius: 999px;
+        animation: chartOrbit 0.9s linear infinite;
+      }
+      .chart-loader-core {
+        position: absolute;
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 999px;
+        background: var(--accent-main);
+        box-shadow: 0 0 1rem var(--accent-light);
+        animation: chartPulse 1.2s ease-in-out infinite;
+      }
+      @keyframes chartOrbit { to { transform: rotate(360deg); } }
+      @keyframes chartPulse { 50% { transform: scale(1.5); opacity: 0.55; } }
+      .chart-stage.chart-ready .chart-loading-state { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+      .chart-high-contrast {
+        filter: contrast(1.18) saturate(1.08);
+      }
+      .chart-stage:fullscreen {
+        width: 100vw;
+        height: 100vh;
+        min-height: 100vh;
+        border-radius: 0;
+        background-color: #0f172a;
+      }
+      .chart-type-tab,
+      #chart-display-card button,
+      #chart-display-card select {
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      }
+      .chart-type-tab:hover,
+      #chart-display-card button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+      }
+      @keyframes chartStageIn {
+        from { opacity: 0; transform: scale(0.985) translateY(10px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      html.accessibility-high-contrast {
+        filter: contrast(1.16) saturate(1.08);
+      }
+      html.accessibility-reduced-motion *,
+      html.accessibility-reduced-motion *::before,
+      html.accessibility-reduced-motion *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.001ms !important;
+      }
+      html.accessibility-focus-mode main:not(#view-atc),
+      html.accessibility-focus-mode footer {
+        opacity: 0.35;
+      }
+      html.accessibility-focus-mode #view-atc {
+        box-shadow: 0 0 0 3px var(--accent-light);
+      }
+      html.accessibility-reading-spacing body,
+      html.accessibility-reading-spacing p,
+      html.accessibility-reading-spacing label,
+      html.accessibility-reading-spacing button {
+        line-height: 1.75 !important;
+      }
+      html.accessibility-compact .dynamic-card {
+        padding: 0.8rem !important;
+      }
+      html.accessibility-large-targets button,
+      html.accessibility-large-targets select,
+      html.accessibility-large-targets input {
+        min-height: 2.75rem;
+      }
+
     </style>
   </head>
   <body
-    class="bg-slate-900 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col transition-colors duration-200"
+    class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col transition-colors duration-200"
   >
     <!-- Toast Notification Container -->
     <div
@@ -172,9 +283,9 @@
             class="flex items-center gap-3 text-left group"
           >
             <div
-              class="w-10 h-10 dynamic-card theme-accent-subtle-bg border theme-accent-border flex items-center justify-center theme-accent-text font-bold shadow-sm group-hover:scale-105 transition-transform"
+              class="w-14 h-14 dynamic-card flex items-center justify-center font-bold group-hover:scale-105 transition-transform overflow-hidden"
             >
-              <i data-lucide="plane" class="w-5 h-5 transform -rotate-45"></i>
+              <img src="PFHelper%20Logo.png" alt="PFHelper" class="w-full h-full object-contain drop-shadow-md" />
             </div>
             <div>
               <div class="flex items-center gap-2">
@@ -192,7 +303,7 @@
                 class="text-xs text-slate-500 dark:text-slate-400"
                 data-i18n="tagline"
               >
-                Roblox Aviation Suite
+                Project Flight Tools
               </p>
             </div>
           </button>
@@ -291,14 +402,19 @@
     <!-- MAIN HUB SCREEN (DEFAULT HOME PAGE) -->
     <div
       id="view-hub"
-      class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col items-center animate-fade-in"
+      class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center animate-fade-in"
     >
       <!-- Hero Header -->
-      <div class="text-center max-w-3xl mb-10 space-y-3">
+      <div class="text-center max-w-3xl mb-6 space-y-2">
+        <img
+          src="PFHelper%20Logo.png"
+          alt="PFHelper logo"
+          class="w-16 h-16 sm:w-20 sm:h-20 object-contain mx-auto mb-1 drop-shadow-xl animate-fade-in"
+        />
         <span
           class="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full theme-accent-subtle-bg theme-accent-text border theme-accent-border inline-block"
           data-i18n="hub_badge"
-          >Project Flight Roblox Hub</span
+          >Project Flight Tools</span
         >
         <h2
           class="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 dark:text-white"
@@ -316,7 +432,7 @@
       </div>
 
       <!-- Main Tool Selector Cards (ATCHelper, CHARTSHelper, Feedback) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-14">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 w-full max-w-5xl mb-8">
         <!-- Tool 1: ATCHelper -->
         <div
           onclick="switchView('atc')"
@@ -386,6 +502,9 @@
               >
                 Access airport diagrams, runway layouts, gate numbers, and
                 taxiway maps for all in-game Project Flight airports.
+              </p>
+              <p class="text-[10px] text-amber-600 dark:text-amber-400 font-semibold" data-i18n="airport_update_notice">
+                More airports and charts will be added over time in Update 9.0.
               </p>
             </div>
           </div>
@@ -666,6 +785,9 @@
             >
               <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
               <span data-i18n="btn_clear">Clear All</span>
+            </button>
+            <button onclick="openToolInfo('atc', event)" class="text-xs theme-accent-text hover:underline flex items-center gap-1" title="Tool information">
+              <i data-lucide="circle-help" class="w-3.5 h-3.5"></i><span data-i18n="learn_tool">How to use</span>
             </button>
           </div>
 
@@ -1030,6 +1152,12 @@
             <p class="text-xs text-slate-400 mt-1">
               Select an airfield to view available diagrams & procedures.
             </p>
+            <button onclick="openToolInfo('charts', event)" class="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 hover:underline">
+              <i data-lucide="circle-help" class="w-3.5 h-3.5"></i><span data-i18n="learn_tool">How to use</span>
+            </button>
+            <p class="text-[10px] text-amber-600 dark:text-amber-400 mt-2 font-semibold" data-i18n="airport_update_notice">
+              More airports and charts will be added over time in Update 9.0.
+            </p>
           </div>
 
           <!-- Airport Search Input -->
@@ -1108,6 +1236,20 @@
           </div>
         </div>
 
+        <div class="flex flex-wrap items-center gap-2" aria-label="Chart tools">
+          <button onclick="changeChartZoom(-0.1)" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Zoom out"><i data-lucide="zoom-out" class="w-3.5 h-3.5 inline"></i></button>
+          <span id="chart-zoom-label" class="text-xs font-mono text-slate-500 min-w-12 text-center">100%</span>
+          <button onclick="changeChartZoom(0.1)" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Zoom in"><i data-lucide="zoom-in" class="w-3.5 h-3.5 inline"></i></button>
+          <button onclick="rotateChart()" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Rotate chart 90 degrees"><i data-lucide="rotate-cw" class="w-3.5 h-3.5 inline"></i></button>
+          <button onclick="toggleChartDrawing()" id="chart-draw-button" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Draw on chart"><i data-lucide="pen-line" class="w-3.5 h-3.5 inline"></i> Draw</button>
+          <button onclick="toggleChartGrid()" id="chart-grid-button" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Toggle chart grid"><i data-lucide="grid-2x2" class="w-3.5 h-3.5 inline"></i></button>
+          <button onclick="toggleChartContrast()" id="chart-contrast-button" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Toggle chart contrast"><i data-lucide="contrast" class="w-3.5 h-3.5 inline"></i></button>
+          <button onclick="fitChartToViewport()" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Fit chart to screen"><i data-lucide="scan" class="w-3.5 h-3.5 inline"></i></button>
+          <button onclick="toggleChartFullscreen()" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Toggle fullscreen"><i data-lucide="fullscreen" class="w-3.5 h-3.5 inline"></i></button>
+          <button onclick="resetChartView()" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold" title="Reset chart view"><i data-lucide="refresh-cw" class="w-3.5 h-3.5 inline"></i></button>
+          <span class="ml-auto text-[10px] text-slate-400 font-semibold">Read-only chart library</span>
+        </div>
+
         <!-- Chart Display Window -->
         <div
           id="chart-display-card"
@@ -1141,6 +1283,9 @@
             >
               Send Feedback & Feature Requests
             </h2>
+            <button onclick="openToolInfo('feedback', event)" class="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
+              <i data-lucide="circle-help" class="w-3.5 h-3.5"></i><span data-i18n="learn_tool">How to use</span>
+            </button>
           </div>
           <p
             class="text-xs text-slate-500 dark:text-slate-400"
@@ -1583,6 +1728,34 @@
               </button>
             </div>
           </div>
+
+          <div class="space-y-3 border-t border-slate-200 dark:border-slate-800 pt-5">
+            <div>
+              <h3 class="font-bold text-slate-800 dark:text-slate-200" data-i18n="accessibility_title">Accessibility</h3>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1" data-i18n="accessibility_desc">Adjust contrast, motion, focus, and reading comfort.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="high-contrast-toggle" onclick="toggleHighContrast()" class="py-2 px-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-800 dark:text-slate-200 font-semibold text-center border border-slate-200 dark:border-slate-700" data-i18n="high_contrast">High contrast</button>
+              <button id="reduced-motion-toggle" onclick="toggleReducedMotion()" class="py-2 px-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-800 dark:text-slate-200 font-semibold text-center border border-slate-200 dark:border-slate-700" data-i18n="reduced_motion">Reduce motion</button>
+              <button id="focus-mode-toggle" onclick="toggleFocusMode()" class="py-2 px-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-800 dark:text-slate-200 font-semibold text-center border border-slate-200 dark:border-slate-700" data-i18n="focus_mode">Focus mode</button>
+              <button id="reading-spacing-toggle" onclick="toggleReadingSpacing()" class="py-2 px-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-800 dark:text-slate-200 font-semibold text-center border border-slate-200 dark:border-slate-700" data-i18n="reading_spacing">Reading spacing</button>
+            </div>
+          </div>
+
+          <div class="space-y-3 border-t border-slate-200 dark:border-slate-800 pt-5">
+            <div>
+              <h3 class="font-bold text-slate-800 dark:text-slate-200" data-i18n="customization_title">More customization</h3>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1" data-i18n="customization_desc">Choose how dense and readable the workspace feels.</p>
+            </div>
+            <label class="flex items-center justify-between gap-3 text-slate-700 dark:text-slate-300">
+              <span data-i18n="compact_layout">Compact layout</span>
+              <input id="compact-layout-toggle" type="checkbox" onchange="toggleCompactLayout(this.checked)" class="h-4 w-4 accent-sky-500" />
+            </label>
+            <label class="flex items-center justify-between gap-3 text-slate-700 dark:text-slate-300">
+              <span data-i18n="larger_targets">Larger controls</span>
+              <input id="larger-targets-toggle" type="checkbox" onchange="toggleLargerTargets(this.checked)" class="h-4 w-4 accent-sky-500" />
+            </label>
+          </div>
         </div>
 
         <div
@@ -1591,9 +1764,23 @@
           <button
             onclick="closeAppearanceModal()"
             class="px-5 py-2 theme-accent-bg text-white font-bold rounded-xl shadow"
+            data-i18n="done"
           >
             Done
           </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tool-info-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <h2 id="tool-info-title" class="text-base font-bold text-slate-900 dark:text-white"></h2>
+          <button onclick="closeToolInfo()" class="text-slate-400 hover:text-slate-900 dark:hover:text-white p-1" title="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <div class="p-6 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+          <p id="tool-info-body"></p>
+          <ol id="tool-info-steps" class="list-decimal pl-5 space-y-2"></ol>
         </div>
       </div>
     </div>
@@ -1609,7 +1796,10 @@
           <span
             class="w-2 h-2 rounded-full theme-accent-bg animate-pulse"
           ></span>
-          <span>PFHelper &bull; Project Flight Roblox Toolset</span>
+          <span class="inline-flex items-center gap-2">
+            <img src="PFHelper%20Logo.png" alt="" class="w-6 h-6 object-contain" />
+            <span data-i18n="footer_brand">PFHelper &bull; Project Flight Tools</span>
+          </span>
         </div>
         <div>Pilot & ATC Assistant</div>
       </div>
@@ -1623,18 +1813,19 @@
       // Translation Dictionary
       const translations = {
         en: {
-          tagline: "Roblox Aviation Suite",
+          tagline: "Project Flight Tools",
           nav_hub: "PFHelper Hub",
           nav_feedback: "Feedback",
           btn_settings: "Settings",
-          hub_badge: "Project Flight Roblox Hub",
+          hub_badge: "Project Flight Tools",
+          footer_brand: "PFHelper • Project Flight Tools",
           hub_welcome: "Welcome to",
           hub_desc:
-            "Your ultimate flight deck companion for Project Flight on Roblox. Select an aviation tool or explore community resources below.",
+            "Your go-to hub for Project Flight. Pick a tool or check out the community resources below to get started.",
           atc_tool_desc:
-            "Generate instant, copy-pasteable ATC radio chat lines for all flight phases, emergencies, and alternate airport diversions.",
+            "Get instant, ready-to-use ATC radio calls for every phase of flight, emergencies, and diversions.",
           charts_tool_desc:
-            "Access airport diagrams, runway layouts, gate numbers, and taxiway maps for all in-game Project Flight airports.",
+            "View airport diagrams, runway layouts, gate numbers, and taxiway maps for every airport in Project Flight.",
           feedback_hub: "Feedback Hub",
           feedback_tool_desc:
             "Send suggestions, request missing airport charts, report bugs, or request features directly to the developers.",
@@ -1643,22 +1834,41 @@
           submit_request: "Submit Request",
           status_now: "AVAILABLE NOW",
           status_interactive: "INTERACTIVE",
-          ecosystem_title: "Project Flight Community & Ecosystem Links",
+          ecosystem_title: "Project Flight Links",
           ecosystem_sub:
-            "Quick access to official Discords, tracking tools, and game links.",
+            "Jump straight to official Discord channels, flight trackers, and game links.",
           config_title: "Flight Plan Config",
           btn_clear: "Clear All",
           feedback_title: "Send Feedback & Feature Requests",
           feedback_sub:
             "Have an airport chart to submit? Found a bug or want a custom call added? Fill out the form below!",
           settings_title: "Settings & Appearance",
+          done: "Done",
+          airport_update_notice: "More airports and charts will be added whilst Update 9.0 continues to roll out.",
+          learn_tool: "How to use",
+          accessibility_title: "Accessibility",
+          accessibility_desc: "Adjust contrast, motion, focus, and reading comfort.",
+          high_contrast: "High contrast",
+          reduced_motion: "Reduce motion",
+          focus_mode: "Focus mode",
+          reading_spacing: "Reading spacing",
+          customization_title: "More customization",
+          customization_desc: "Choose how dense and readable the workspace feels.",
+          compact_layout: "Compact layout",
+          larger_targets: "Larger controls",
+          no_scripts: "No scripts match this filter phase.",
+          pilot_request: "You (Pilot Initial Request)",
+          atc_response: "ATC Response (Listen to Controller)",
+          pilot_readback: "You (Mandatory Readback)",
+          copy: "Copy",
         },
         es: {
-          tagline: "Suite de Aviación de Roblox",
+          tagline: "Herramientas de Project Flight",
           nav_hub: "Inicio PFHelper",
           nav_feedback: "Comentarios",
           btn_settings: "Ajustes",
-          hub_badge: "Centro Project Flight Roblox",
+          hub_badge: "Herramientas de Project Flight",
+          footer_brand: "PFHelper • Herramientas de Project Flight",
           hub_welcome: "Bienvenido a",
           hub_desc:
             "Tu compañero de cabina definitivo para Project Flight en Roblox. Selecciona una herramienta de aviación abajo.",
@@ -1682,169 +1892,355 @@
           feedback_sub:
             "¿Tienes una carta de aeropuerto? ¡Rellena el formulario abajo!",
           settings_title: "Ajustes y Apariencia",
+          airport_update_notice: "Se añadirán más aeropuertos y cartas con el tiempo en la Actualización 9.0.",
+          learn_tool: "Cómo usarlo",
+          accessibility_title: "Accesibilidad",
+          accessibility_desc: "Ajusta el contraste, el movimiento, el enfoque y la comodidad de lectura.",
+          high_contrast: "Alto contraste",
+          reduced_motion: "Reducir movimiento",
+          focus_mode: "Modo concentración",
+          reading_spacing: "Espaciado de lectura",
+          customization_title: "Más personalización",
+          customization_desc: "Elige la densidad y legibilidad del espacio de trabajo.",
+          compact_layout: "Diseño compacto",
+          larger_targets: "Controles grandes",
+          no_scripts: "Ningún guion coincide con esta fase.",
+          pilot_request: "Tú (solicitud inicial del piloto)",
+          atc_response: "Respuesta ATC (escucha al controlador)",
+          pilot_readback: "Tú (repetición obligatoria)",
+          copy: "Copiar",
         },
         fr: {
-          tagline: "Suite d'Aviation Roblox",
-          nav_hub: "Accueil PFHelper",
+          tagline: "Outils Project Flight",
+          nav_hub: "Hub PFHelper",
           nav_feedback: "Avis",
           btn_settings: "Paramètres",
-          hub_badge: "Hub Roblox Project Flight",
+          hub_badge: "Outils Project Flight",
+          footer_brand: "PFHelper • Outils Project Flight",
           hub_welcome: "Bienvenue sur",
           hub_desc:
-            "Votre compagnon de cockpit ultime pour Project Flight sur Roblox.",
+            "Votre centre principal pour Project Flight. Choisissez un outil ou consultez les ressources de la communauté pour commencer.",
           atc_tool_desc:
-            "Générez des lignes de dialogue radio ATC instantanées et copiables.",
+            "Obtenez des messages radio ATC prêts à l'emploi pour chaque phase de vol, les urgences et les déroutements.",
           charts_tool_desc:
-            "Accédez aux cartes d'aéroports, voies de circulation et portes.",
-          feedback_hub: "Hub d'Avis",
+            "Consultez les plans d'aéroports, pistes, portes et voies de circulation de tous les aéroports de Project Flight.",
+          feedback_hub: "Hub des avis",
           feedback_tool_desc:
-            "Envoyez vos suggestions, demandez des cartes manquantes ou signalez des bugs.",
-          launch_tool: "Lancer le Générateur",
-          browse_charts: "Consulter les Cartes",
-          submit_request: "Soumettre",
+            "Envoyez des suggestions, demandez des cartes d'aéroport, signalez des bugs ou proposez des fonctionnalités directement aux développeurs.",
+          launch_tool: "Lancer le générateur",
+          browse_charts: "Parcourir les cartes",
+          submit_request: "Envoyer la demande",
           status_now: "DISPONIBLE",
           status_interactive: "INTERACTIF",
-          ecosystem_title: "Liens Communautaires Project Flight",
+          ecosystem_title: "Liens Project Flight",
           ecosystem_sub:
-            "Accès rapide aux Discords officiels et outils de suivi.",
-          config_title: "Configuration du Vol",
-          btn_clear: "Effacer Tout",
-          feedback_title: "Envoyer un Avis",
+            "Accédez directement aux Discords officiels, aux outils de suivi des vols et aux liens du jeu.",
+          config_title: "Configuration du plan de vol",
+          btn_clear: "Tout effacer",
+          feedback_title: "Envoyer un avis et des demandes de fonctionnalités",
           feedback_sub:
-            "Une carte manquante ? Remplissez le formulaire ci-dessous !",
-          settings_title: "Paramètres & Apparence",
+            "Vous avez une carte d'aéroport à envoyer ? Vous avez trouvé un bug ou souhaitez ajouter une phrase personnalisée ? Remplissez le formulaire.",
+          settings_title: "Paramètres et apparence",
+          done: "Terminé",
+          airport_update_notice: "D'autres aéroports et cartes seront ajoutés au fil du temps dans la mise à jour 9.0.",
+          learn_tool: "Mode d'emploi",
+          accessibility_title: "Accessibilité",
+          accessibility_desc: "Ajustez le contraste, les animations, la mise au point et le confort de lecture.",
+          high_contrast: "Contraste élevé",
+          reduced_motion: "Réduire les animations",
+          focus_mode: "Mode concentration",
+          reading_spacing: "Espacement de lecture",
+          customization_title: "Plus de personnalisation",
+          customization_desc: "Choisissez la densité et la lisibilité de l'espace de travail.",
+          compact_layout: "Mise en page compacte",
+          larger_targets: "Commandes plus grandes",
+          no_scripts: "Aucun script ne correspond à cette phase.",
+          pilot_request: "Vous (demande initiale du pilote)",
+          atc_response: "Réponse ATC (écoutez le contrôleur)",
+          pilot_readback: "Vous (relecture obligatoire)",
+          copy: "Copier",
         },
         de: {
-          tagline: "Roblox Luftfahrt-Suite",
-          nav_hub: "PFHelper Zentrale",
+          tagline: "Project-Flight-Tools",
+          nav_hub: "PFHelper-Zentrale",
           nav_feedback: "Feedback",
           btn_settings: "Einstellungen",
-          hub_badge: "Project Flight Roblox Zentrale",
+          hub_badge: "Project-Flight-Tools",
+          footer_brand: "PFHelper • Project-Flight-Tools",
           hub_welcome: "Willkommen bei",
           hub_desc:
-            "Dein ultimativer Cockpit-Begleiter für Project Flight auf Roblox.",
+            "Deine zentrale Anlaufstelle für Project Flight. Wähle ein Tool oder entdecke die Community-Ressourcen, um loszulegen.",
           atc_tool_desc:
-            "Generiere sofort kopierbare ATC-Frequenztexte für alle Flugphasen.",
+            "Erhalte sofort einsatzbereite ATC-Funksprüche für jede Flugphase, Notfälle und Ausweichflüge.",
           charts_tool_desc:
-            "Greife auf Flughafenkarten, Landebahnen und Gate-Nummern zu.",
+            "Sieh dir Flughafendiagramme, Start- und Landebahnen, Gate-Nummern und Rollwege für jeden Project-Flight-Flughafen an.",
           feedback_hub: "Feedback-Zentrale",
           feedback_tool_desc:
-            "Sende Vorschläge, fordere fehlende Karten an oder melde Fehler.",
-          launch_tool: "Generator Starten",
-          browse_charts: "Karten Durchsuchen",
-          submit_request: "Anfrage Senden",
+            "Sende Vorschläge, fordere fehlende Flughafenkarten an, melde Fehler oder schlage neue Funktionen direkt den Entwicklern vor.",
+          launch_tool: "Generator starten",
+          browse_charts: "Karten durchsuchen",
+          submit_request: "Anfrage senden",
           status_now: "JETZT VERFÜGBAR",
           status_interactive: "INTERAKTIV",
-          ecosystem_title: "Project Flight Community-Links",
-          ecosystem_sub: "Schneller Zugriff auf offizielle Discords und Tools.",
+          ecosystem_title: "Project-Flight-Links",
+          ecosystem_sub: "Direkter Zugriff auf offizielle Discord-Kanäle, Flugtracker und Spiellinks.",
           config_title: "Flugplan-Konfiguration",
           btn_clear: "Alles Löschen",
-          feedback_title: "Feedback Senden",
-          feedback_sub: "Fehlt eine Karte? Fülle einfach das Formular aus!",
-          settings_title: "Einstellungen & Aussehen",
+          feedback_title: "Feedback und Funktionswünsche senden",
+          feedback_sub: "Du hast eine Flughafenkarte? Einen Fehler gefunden oder möchtest einen eigenen Funkspruch hinzufügen? Fülle das Formular aus.",
+          settings_title: "Einstellungen und Darstellung",
+          done: "Fertig",
+          airport_update_notice: "Weitere Flughäfen und Karten werden im Laufe der Zeit mit Update 9.0 hinzugefügt.",
+          learn_tool: "Anleitung",
+          accessibility_title: "Barrierefreiheit",
+          accessibility_desc: "Passe Kontrast, Bewegung, Fokus und Lesekomfort an.",
+          high_contrast: "Hoher Kontrast",
+          reduced_motion: "Bewegung reduzieren",
+          focus_mode: "Fokusmodus",
+          reading_spacing: "Leseabstand",
+          customization_title: "Weitere Anpassungen",
+          customization_desc: "Wähle die Dichte und Lesbarkeit des Arbeitsbereichs.",
+          compact_layout: "Kompaktes Layout",
+          larger_targets: "Größere Bedienelemente",
+          no_scripts: "Keine Skripte passen zu dieser Flugphase.",
+          pilot_request: "Du (erste Pilotenanfrage)",
+          atc_response: "ATC-Antwort (Controller zuhören)",
+          pilot_readback: "Du (verbindliche Wiederholung)",
+          copy: "Kopieren",
         },
         pt: {
-          tagline: "Suíte de Aviação Roblox",
+          tagline: "Ferramentas do Project Flight",
           nav_hub: "Início PFHelper",
           nav_feedback: "Feedback",
-          btn_settings: "Ajustes",
-          hub_badge: "Hub Roblox Project Flight",
+          btn_settings: "Configurações",
+          hub_badge: "Ferramentas do Project Flight",
+          footer_brand: "PFHelper • Ferramentas do Project Flight",
           hub_welcome: "Bem-vindo ao",
           hub_desc:
-            "Seu assistente de cabine definitivo para o Project Flight no Roblox.",
+            "Seu centro principal para o Project Flight. Escolha uma ferramenta ou confira os recursos da comunidade para começar.",
           atc_tool_desc:
-            "Gere mensagens de rádio ATC instantâneas e copiáveis.",
+            "Obtenha chamadas de rádio ATC prontas para usar em todas as fases do voo, emergências e desvios.",
           charts_tool_desc:
-            "Acesse cartas de aeroportos, pistas e números de portões.",
+            "Veja diagramas de aeroportos, pistas, portões e taxiways de todos os aeroportos do Project Flight.",
           feedback_hub: "Central de Feedback",
           feedback_tool_desc:
-            "Envie sugestões, peça cartas ausentes ou reporte erros.",
-          launch_tool: "Abrir Gerador",
-          browse_charts: "Ver Cartas",
-          submit_request: "Enviar Pedido",
-          status_now: "DISPONÍVEL",
+            "Envie sugestões, solicite cartas de aeroportos, reporte bugs ou peça novos recursos diretamente aos desenvolvedores.",
+          launch_tool: "Abrir gerador",
+          browse_charts: "Explorar cartas",
+          submit_request: "Enviar solicitação",
+          status_now: "DISPONÍVEL AGORA",
           status_interactive: "INTERATIVO",
-          ecosystem_title: "Links da Comunidade Project Flight",
-          ecosystem_sub: "Acesso rápido aos Discords oficiais e rastreadores.",
-          config_title: "Configuração do Plano de Voo",
-          btn_clear: "Limpar Tudo",
-          feedback_title: "Enviar Feedback",
+          ecosystem_title: "Links do Project Flight",
+          ecosystem_sub: "Acesse diretamente os canais oficiais do Discord, rastreadores de voo e links do jogo.",
+          config_title: "Configuração do plano de voo",
+          btn_clear: "Limpar tudo",
+          feedback_title: "Enviar feedback e pedidos de recursos",
           feedback_sub:
-            "Tem uma carta de aeroporto? Preencha o formulário abaixo!",
-          settings_title: "Ajustes e Aparência",
+            "Tem uma carta de aeroporto para enviar? Encontrou um bug ou quer adicionar uma chamada personalizada? Preencha o formulário.",
+          settings_title: "Configurações e aparência",
+          done: "Concluído",
+          airport_update_notice: "Mais aeroportos e cartas serão adicionados ao longo do tempo na Atualização 9.0.",
+          learn_tool: "Como usar",
+          accessibility_title: "Acessibilidade",
+          accessibility_desc: "Ajuste o contraste, o movimento, o foco e o conforto de leitura.",
+          high_contrast: "Alto contraste",
+          reduced_motion: "Reduzir movimento",
+          focus_mode: "Modo de foco",
+          reading_spacing: "Espaçamento de leitura",
+          customization_title: "Mais personalização",
+          customization_desc: "Escolha a densidade e a legibilidade do espaço de trabalho.",
+          compact_layout: "Layout compacto",
+          larger_targets: "Controles maiores",
+          no_scripts: "Nenhum roteiro corresponde a esta fase.",
+          pilot_request: "Você (solicitação inicial do piloto)",
+          atc_response: "Resposta ATC (ouça o controlador)",
+          pilot_readback: "Você (repetição obrigatória)",
+          copy: "Copiar",
         },
         ru: {
-          tagline: "Авиационный Набор Roblox",
+          tagline: "Инструменты Project Flight",
           nav_hub: "Главная PFHelper",
           nav_feedback: "Отзывы",
           btn_settings: "Настройки",
-          hub_badge: "Хаб Project Flight Roblox",
+          hub_badge: "Инструменты Project Flight",
+          footer_brand: "PFHelper • Инструменты Project Flight",
           hub_welcome: "Добро пожаловать в",
           hub_desc:
-            "Ваш незаменимый помощник пилота для Project Flight в Roblox.",
-          atc_tool_desc: "Мгновенная генерация команд ATC для отправки в чат.",
-          charts_tool_desc: "Схемы аэропортов, взлетных полос и стоянок.",
+            "Ваш главный центр для Project Flight. Выберите инструмент или откройте ресурсы сообщества, чтобы начать.",
+          atc_tool_desc: "Получайте готовые радиофразы ATC для каждого этапа полета, чрезвычайных ситуаций и ухода на запасной аэродром.",
+          charts_tool_desc: "Просматривайте схемы аэропортов, взлетно-посадочные полосы, стоянки и рулежные дорожки всех аэропортов Project Flight.",
           feedback_hub: "Центр Отзывов",
           feedback_tool_desc:
-            "Отправляйте предложения, запросы схем и отчеты об ошибках.",
-          launch_tool: "Запустить Генератор",
-          browse_charts: "Просмотр Схем",
-          submit_request: "Отправить Запрос",
-          status_now: "ДОСТУПНО",
+            "Отправляйте предложения, запрашивайте схемы аэропортов, сообщайте об ошибках или предлагайте функции разработчикам.",
+          launch_tool: "Запустить генератор",
+          browse_charts: "Открыть схемы",
+          submit_request: "Отправить запрос",
+          status_now: "ДОСТУПНО СЕЙЧАС",
           status_interactive: "ИНТЕРАКТИВНО",
-          ecosystem_title: "Ссылки Сообщества Project Flight",
-          ecosystem_sub: "Быстрый доступ к Discord и трекерам.",
-          config_title: "Конфигурация Полета",
-          btn_clear: "Очистить Все",
-          feedback_title: "Отправить Отзыв",
-          feedback_sub: "Хотите добавить схему? Заполните форму ниже!",
-          settings_title: "Настройки и Внешний Вид",
+          ecosystem_title: "Ссылки Project Flight",
+          ecosystem_sub: "Прямой доступ к официальным каналам Discord, трекерам полетов и ссылкам на игру.",
+          config_title: "Настройка плана полета",
+          btn_clear: "Очистить все",
+          feedback_title: "Отправить отзыв и запрос функции",
+          feedback_sub: "Есть схема аэропорта? Нашли ошибку или хотите добавить собственную радиофразу? Заполните форму.",
+          settings_title: "Настройки и оформление",
+          done: "Готово",
+          airport_update_notice: "Со временем в обновлении 9.0 будут добавлены новые аэропорты и схемы.",
+          learn_tool: "Как пользоваться",
+          accessibility_title: "Специальные возможности",
+          accessibility_desc: "Настройте контраст, анимации, фокус и удобство чтения.",
+          high_contrast: "Высокий контраст",
+          reduced_motion: "Уменьшить анимацию",
+          focus_mode: "Режим фокуса",
+          reading_spacing: "Интервал чтения",
+          customization_title: "Дополнительная настройка",
+          customization_desc: "Выберите плотность и читаемость рабочего пространства.",
+          compact_layout: "Компактный вид",
+          larger_targets: "Крупные элементы",
+          no_scripts: "Нет сценариев для этой фазы.",
+          pilot_request: "Вы (первичный запрос пилота)",
+          atc_response: "Ответ диспетчера (слушайте диспетчера)",
+          pilot_readback: "Вы (обязательное повторение)",
+          copy: "Копировать",
         },
         ja: {
-          tagline: "Roblox 航空スイート",
+          tagline: "Project Flight ツール",
           nav_hub: "ハブ",
           nav_feedback: "フィードバック",
           btn_settings: "設定",
-          hub_badge: "Project Flight Roblox ハブ",
+          hub_badge: "Project Flight ツール",
+          footer_brand: "PFHelper • Project Flight ツール",
           hub_welcome: "ようこそ",
-          hub_desc: "RobloxのProject Flight用コックピットアシスタント。",
+          hub_desc: "Project Flightのメインハブです。ツールを選ぶか、コミュニティのリソースを確認して始めましょう。",
           atc_tool_desc:
-            "すべての飛行フェーズ用ATC無線チャット行を即座に生成。",
+            "すべての飛行段階、緊急事態、ダイバートに対応したATC無線フレーズをすぐに取得できます。",
           charts_tool_desc:
-            "空港図面、滑走路レイアウト、スポット番号にアクセス。",
+            "Project Flightの各空港の空港図、滑走路、ゲート、誘導路を確認できます。",
           feedback_hub: "フィードバックハブ",
           feedback_tool_desc:
-            "提案、チャートの追加リクエスト、バグ報告を送信。",
-          launch_tool: "ジェネレーター起動",
-          browse_charts: "チャート閲覧",
-          submit_request: "リクエスト送信",
-          status_now: "利用可能",
+            "提案、空港チャートのリクエスト、バグ報告、新機能の要望を開発者に直接送信できます。",
+          launch_tool: "ジェネレーターを起動",
+          browse_charts: "チャートを見る",
+          submit_request: "リクエストを送信",
+          status_now: "現在利用可能",
           status_interactive: "インタラクティブ",
-          ecosystem_title: "Project Flight コミュニティリンク",
-          ecosystem_sub: "公式Discordおよび追跡ツールへのクイックアクセス。",
-          config_title: "飛行計画設定",
+          ecosystem_title: "Project Flight リンク",
+          ecosystem_sub: "公式Discordチャンネル、フライト追跡ツール、ゲームリンクへすぐにアクセスできます。",
+          config_title: "フライトプラン設定",
           btn_clear: "すべてクリア",
-          feedback_title: "フィードバック送信",
+          feedback_title: "フィードバックと機能リクエストを送信",
           feedback_sub:
-            "チャートを提出しますか？以下のフォームに入力してください！",
+            "空港チャートを提出しますか？バグを見つけた、またはカスタムコールを追加したい場合は、フォームに入力してください。",
           settings_title: "設定と外観",
+          done: "完了",
+          airport_update_notice: "アップデート9.0で、今後さらに空港とチャートが追加されます。",
+          learn_tool: "使い方",
+          accessibility_title: "アクセシビリティ",
+          accessibility_desc: "コントラスト、動き、フォーカス、読みやすさを調整します。",
+          high_contrast: "高コントラスト",
+          reduced_motion: "動きを減らす",
+          focus_mode: "集中モード",
+          reading_spacing: "読みやすい間隔",
+          customization_title: "追加カスタマイズ",
+          customization_desc: "ワークスペースの密度と読みやすさを選択します。",
+          compact_layout: "コンパクト表示",
+          larger_targets: "大きな操作ボタン",
+          no_scripts: "この飛行段階に一致するスクリプトはありません。",
+          pilot_request: "あなた（パイロットの初回リクエスト）",
+          atc_response: "ATC応答（管制官の指示を聞く）",
+          pilot_readback: "あなた（必須の復唱）",
+          copy: "コピー",
         },
       };
 
       let currentLang = "en";
 
+      function translatePage(langKey) {
+        const language = translations[langKey] || translations.en;
+        document.documentElement.lang = langKey;
+        document.querySelectorAll("[data-i18n]").forEach((element) => {
+          const key = element.getAttribute("data-i18n");
+          const value = language[key] || translations.en[key];
+          if (value) element.textContent = value;
+        });
+        document.querySelectorAll("[data-i18n-placeholder]").forEach((element) => {
+          const key = element.getAttribute("data-i18n-placeholder");
+          const value = language[key] || translations.en[key];
+          if (value) element.placeholder = value;
+        });
+        document.querySelectorAll("[data-i18n-aria-label]").forEach((element) => {
+          const key = element.getAttribute("data-i18n-aria-label");
+          const value = language[key] || translations.en[key];
+          if (value) element.setAttribute("aria-label", value);
+        });
+      }
+
+      function t(key, fallback = key) {
+        return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || fallback;
+      }
+
       function changeLanguage(langKey) {
         if (!translations[langKey]) return;
         currentLang = langKey;
+        localStorage.setItem("pfhelper-language", langKey);
+        translatePage(langKey);
+        showToast(`${languageName(langKey)} language applied`);
+      }
 
-        document.querySelectorAll("[data-i18n]").forEach((el) => {
-          const key = el.getAttribute("data-i18n");
-          if (translations[langKey][key]) {
-            el.textContent = translations[langKey][key];
-          }
-        });
+      function languageName(langKey) {
+        return document.querySelector(`#lang-select option[value="${langKey}"]`)?.textContent.split(" (")[0] || langKey.toUpperCase();
+      }
 
-        showToast(`Language changed to ${langKey.toUpperCase()}`);
+      const toolHelp = {
+        en: {
+          atc: { title: "How ATCHelper works", body: "Fill in the flight details, choose IFR or VFR, then copy the generated radio call you need.", steps: ["Enter your callsign and airports.", "Add runway, gate, aircraft, and altitude details.", "Use the phase tabs to focus the script list."] },
+          charts: { title: "How CHARTSHelper works", body: "Choose an airport, select a chart type, and use the viewer tools to inspect the plate.", steps: ["Search or select an airport.", "Switch between Taxi, SID, STAR, and ILS when available.", "Zoom, pan, rotate, draw, or enter fullscreen mode."] },
+          feedback: { title: "How Feedback works", body: "Use the form to report a problem, request a chart, or suggest an improvement.", steps: ["Choose a feedback category.", "Describe the request clearly.", "Submit the form when you are ready."] },
+        },
+        es: {
+          atc: { title: "Cómo funciona ATCHelper", body: "Completa los datos del vuelo, elige IFR o VFR y copia la llamada de radio que necesites.", steps: ["Escribe tu indicativo y aeropuertos.", "Añade pista, puerta, aeronave y altitud.", "Usa las pestañas para filtrar el guion."] },
+          charts: { title: "Cómo funciona CHARTSHelper", body: "Elige un aeropuerto, selecciona un tipo de carta y usa las herramientas para revisarla.", steps: ["Busca o selecciona un aeropuerto.", "Cambia entre Taxi, SID, STAR e ILS cuando estén disponibles.", "Amplía, desplaza, gira, dibuja o usa pantalla completa."] },
+          feedback: { title: "Cómo funcionan los comentarios", body: "Usa el formulario para informar de problemas, pedir una carta o sugerir una mejora.", steps: ["Elige una categoría.", "Describe la solicitud con claridad.", "Envía el formulario cuando estés listo."] },
+        },
+        fr: {
+          atc: { title: "Fonctionnement d'ATCHelper", body: "Renseignez les détails du vol, choisissez IFR ou VFR, puis copiez la phrase radio souhaitée.", steps: ["Saisissez l'indicatif et les aéroports.", "Ajoutez piste, porte, avion et altitude.", "Utilisez les onglets pour filtrer le script."] },
+          charts: { title: "Fonctionnement de CHARTSHelper", body: "Choisissez un aéroport, une catégorie de carte, puis utilisez les outils pour l'inspecter.", steps: ["Recherchez ou sélectionnez un aéroport.", "Passez entre Taxi, SID, STAR et ILS si disponibles.", "Zoomez, déplacez, pivotez, dessinez ou passez en plein écran."] },
+          feedback: { title: "Fonctionnement des avis", body: "Utilisez le formulaire pour signaler un problème, demander une carte ou proposer une amélioration.", steps: ["Choisissez une catégorie.", "Décrivez clairement la demande.", "Envoyez le formulaire quand vous êtes prêt."] },
+        },
+        de: {
+          atc: { title: "So funktioniert ATCHelper", body: "Gib die Flugdaten ein, wähle IFR oder VFR und kopiere den gewünschten Funkspruch.", steps: ["Gib Rufzeichen und Flughäfen ein.", "Ergänze Bahn, Gate, Flugzeug und Höhe.", "Filtere das Skript mit den Phasen-Tabs."] },
+          charts: { title: "So funktioniert CHARTSHelper", body: "Wähle einen Flughafen und eine Kartenart und nutze die Werkzeuge zur Ansicht.", steps: ["Suche oder wähle einen Flughafen.", "Wechsle zwischen Taxi, SID, STAR und ILS, sofern vorhanden.", "Zoome, verschiebe, drehe, zeichne oder nutze den Vollbildmodus."] },
+          feedback: { title: "So funktioniert Feedback", body: "Melde Probleme, fordere Karten an oder schlage Verbesserungen über das Formular vor.", steps: ["Wähle eine Kategorie.", "Beschreibe die Anfrage klar.", "Sende das Formular ab."] },
+        },
+        pt: {
+          atc: { title: "Como o ATCHelper funciona", body: "Preencha os dados do voo, escolha IFR ou VFR e copie a chamada de rádio desejada.", steps: ["Informe o indicativo e os aeroportos.", "Adicione pista, portão, aeronave e altitude.", "Use as abas para filtrar o roteiro."] },
+          charts: { title: "Como o CHARTSHelper funciona", body: "Escolha um aeroporto, selecione o tipo de carta e use as ferramentas para analisá-la.", steps: ["Pesquise ou selecione um aeroporto.", "Alterne entre Taxi, SID, STAR e ILS quando disponíveis.", "Aplique zoom, mova, gire, desenhe ou use tela cheia."] },
+          feedback: { title: "Como funciona o feedback", body: "Use o formulário para relatar problemas, solicitar cartas ou sugerir melhorias.", steps: ["Escolha uma categoria.", "Descreva o pedido claramente.", "Envie o formulário."] },
+        },
+        ru: {
+          atc: { title: "Как работает ATCHelper", body: "Введите данные полета, выберите IFR или VFR и скопируйте нужную радиофразу.", steps: ["Введите позывной и аэропорты.", "Добавьте полосу, стоянку, самолет и высоту.", "Используйте вкладки для фильтрации сценария."] },
+          charts: { title: "Как работает CHARTSHelper", body: "Выберите аэропорт и тип схемы, затем используйте инструменты просмотра.", steps: ["Найдите или выберите аэропорт.", "Переключайтесь между Taxi, SID, STAR и ILS, если они доступны.", "Масштабируйте, перемещайте, поворачивайте, рисуйте или включайте полный экран."] },
+          feedback: { title: "Как работает обратная связь", body: "Используйте форму для сообщения о проблеме, запроса схемы или предложения улучшения.", steps: ["Выберите категорию.", "Четко опишите запрос.", "Отправьте форму."] },
+        },
+        ja: {
+          atc: { title: "ATCHelperの使い方", body: "フライト情報を入力し、IFRまたはVFRを選んで必要な無線フレーズをコピーします。", steps: ["コールサインと空港を入力します。", "滑走路、ゲート、機種、高度を追加します。", "タブでスクリプトを絞り込みます。"] },
+          charts: { title: "CHARTSHelperの使い方", body: "空港とチャートの種類を選び、表示ツールで確認します。", steps: ["空港を検索または選択します。", "利用可能なTaxi、SID、STAR、ILSを切り替えます。", "ズーム、移動、回転、描画、全画面表示ができます。"] },
+          feedback: { title: "フィードバックの使い方", body: "フォームから問題の報告、チャートのリクエスト、改善案を送信できます。", steps: ["カテゴリーを選びます。", "内容を具体的に説明します。", "フォームを送信します。"] },
+        },
+      };
+
+      function openToolInfo(tool, event) {
+        event?.stopPropagation();
+        const content = (toolHelp[currentLang] || toolHelp.en)[tool] || toolHelp.en[tool];
+        document.getElementById("tool-info-title").textContent = content.title;
+        document.getElementById("tool-info-body").textContent = content.body;
+        document.getElementById("tool-info-steps").innerHTML = content.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("");
+        document.getElementById("tool-info-modal").classList.remove("hidden");
+        lucide.createIcons();
+      }
+
+      function closeToolInfo() {
+        document.getElementById("tool-info-modal").classList.add("hidden");
       }
 
       // Project Flight Airport Master Database
@@ -1907,12 +2303,7 @@
           icao: "EGKK",
           name: "London Gatwick Airport",
           region: "United Kingdom",
-          charts: {
-            taxi: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80",
-            sid: "",
-            star: "",
-            ils: "",
-          },
+          charts: { taxi: "", sid: "", star: "", ils: "" },
         },
         {
           icao: "EGLC",
@@ -1958,12 +2349,76 @@
         },
       ];
 
+      const chartAssetCatalog = {
+        MTCA: [{ file: "charts/MTCA/Airport Diagram.png", name: "Airport Diagram", type: "taxi" }],
+        MDAB: [{ file: "charts/MDAB/Airport Diagram.png", name: "Airport Diagram", type: "taxi" }],
+        MDCR: [{ file: "charts/MDCR/Airport Diagram.png", name: "Airport Diagram", type: "taxi" }],
+        MDST: [{ file: "charts/MDST/Airport Diagram.png", name: "Airport Diagram", type: "taxi" }],
+        LCLK: [
+          { file: "charts/LCLK/Airport Diagram.png", name: "Airport Diagram", type: "taxi" },
+          { file: "charts/LCLK/Parking Stands 01.png", name: "Parking Stands 01", type: "taxi" },
+          { file: "charts/LCLK/Parking Stands 02.png", name: "Parking Stands 02", type: "taxi" },
+          { file: "charts/LCLK/SID Runway 04.png", name: "SID Runway 04", type: "sid" },
+          { file: "charts/LCLK/SID Runway 22.png", name: "SID Runway 22", type: "sid" },
+          { file: "charts/LCLK/STAR Runway 04.png", name: "STAR Runway 04", type: "star" },
+          { file: "charts/LCLK/STAR Runway 22.png", name: "STAR Runway 22", type: "star" },
+        ],
+        LCPH: [
+          { file: "charts/LCPH/Airport Breifing.png", name: "Airport Breifing", type: "taxi" },
+          { file: "charts/LCPH/Airport Diagram.png", name: "Airport Diagram", type: "taxi" },
+          { file: "charts/LCPH/Parking Stands.png", name: "Parking Stands", type: "taxi" },
+        ],
+        MDPC: [
+          { file: "charts/MDPC/Airport Diagram.png", name: "Airport Diagram", type: "taxi" },
+          { file: "charts/MDPC/Airport Information.png", name: "Airport Information", type: "taxi" },
+          { file: "charts/MDPC/Parking Stands.png", name: "Parking Stands", type: "taxi" },
+          { file: "charts/MDPC/SID Runway 09 & 08.png", name: "SID Runway 09 & 08", type: "sid" },
+          { file: "charts/MDPC/STAR & SID Legend.png", name: "STAR & SID Legend", type: "sid" },
+          { file: "charts/MDPC/STAR Runway 09 & 08.png", name: "STAR Runway 09 & 08", type: "star" },
+        ],
+        LCRA: [{ file: "charts/LCRA/Airport Diagram.png", name: "Airport Diagram", type: "taxi" }],
+      };
+
       // Global State
       let currentFlightRule = "IFR";
       let activePhaseFilter = "all";
       let selectedChartAirport = "EGKK";
       let selectedChartType = "taxi";
+      let selectedChartIndex = 0;
       let attachedChartBase64 = null;
+      let pendingHueHex = null;
+      let chartViewState = { zoom: 1, baseZoom: 1, rotation: 0, panX: 0, panY: 0, drawing: false };
+      let chartPointerState = null;
+      const chartDrawings = {};
+      let chartGridVisible = true;
+      let chartHighContrast = false;
+      const chartImageCache = new Map();
+
+      function getChartKey() {
+        return `${selectedChartAirport}:${selectedChartType}`;
+      }
+
+      function getChartEntries(airport, type) {
+        const catalogEntries = chartAssetCatalog[airport.icao];
+        if (catalogEntries && catalogEntries.length) {
+          return catalogEntries.filter((entry) => {
+            return entry.type === type;
+          });
+        }
+        const configured = airport.charts[type];
+        if (configured && typeof configured === "string") return [{ file: configured, name: `${type.toUpperCase()} chart` }];
+        return [];
+      }
+
+      function preloadChartEntries(entries) {
+        entries.forEach((entry) => {
+          if (chartImageCache.has(entry.file)) return;
+          const image = new Image();
+          image.decoding = "async";
+          image.src = entry.file.startsWith("http") ? entry.file : `./${entry.file}`;
+          chartImageCache.set(entry.file, image);
+        });
+      }
 
       // NATO Phonetics dictionary
       const natoAlphabet = {
@@ -2184,6 +2639,17 @@
         renderScriptCards();
         renderChartAirportList();
         toggleChartUploadSection();
+        translatePage(currentLang);
+        applyAccessibilityPreferences();
+        let resizeFrame = 0;
+        window.addEventListener("resize", () => {
+          cancelAnimationFrame(resizeFrame);
+          resizeFrame = requestAnimationFrame(() => {
+            fitChartImage();
+            syncDrawingCanvas();
+          });
+        }, { passive: true });
+        document.addEventListener("keydown", handleChartKeyboardShortcuts);
 
         // Paste Event listener for chart images
         document.addEventListener("paste", handleGlobalPaste);
@@ -2376,7 +2842,12 @@
       }
 
       function selectChartType(type) {
+        const airport = airportDatabase.find((item) => item.icao === selectedChartAirport);
+        if (!airport || !getChartEntries(airport, type).length) return;
         selectedChartType = type;
+        selectedChartIndex = 0;
+        resetChartView();
+        updateChartTypeTabs();
         document.querySelectorAll(".chart-type-tab").forEach((btn) => {
           if (btn.dataset.charttype === type) {
             btn.className =
@@ -2406,42 +2877,213 @@
 
         if (!container) return;
 
-        const chartUrl = ap.charts[selectedChartType];
-
-        if (chartUrl && chartUrl.trim() !== "") {
+        const entries = getChartEntries(ap, selectedChartType);
+        updateChartTypeTabs(ap);
+        if (!entries.length) {
           container.innerHTML = `
-          <div class="w-full h-full flex flex-col items-center">
-            <img src="${chartUrl}" alt="${ap.icao} ${selectedChartType} Chart" class="max-h-[650px] w-auto object-contain rounded-xl shadow-md" onerror="this.style.display='none'; document.getElementById('chart-fallback-box').classList.remove('hidden');">
-            <div id="chart-fallback-box" class="hidden text-center space-y-3 p-8">
-              <i data-lucide="file-warning" class="w-12 h-12 text-amber-500 mx-auto"></i>
-              <h3 class="text-base font-bold text-slate-900 dark:text-white">Chart Image Link Broken or Unavailable</h3>
-              <p class="text-xs text-slate-400 max-w-md">The image URL provided for this chart could not be loaded.</p>
-            </div>
-          </div>
-        `;
-        } else {
-          container.innerHTML = `
-          <div class="text-center space-y-4 max-w-md p-6">
-            <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 mx-auto">
-              <i data-lucide="file-plus-2" class="w-7 h-7"></i>
-            </div>
-            <div>
-              <h3 class="text-base font-bold text-slate-900 dark:text-white">No ${selectedChartType.toUpperCase()} Chart Linked Yet</h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                We haven't added the image link for <strong>${
-                  ap.icao
-                } - ${selectedChartType.toUpperCase()}</strong> yet. You can submit chart links or images through our Feedback tab!
-              </p>
-            </div>
-            <button onclick="switchView('feedback')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow transition-colors inline-flex items-center gap-1.5">
-              <i data-lucide="send" class="w-3.5 h-3.5"></i>
-              <span>Submit Chart via Feedback</span>
-            </button>
-          </div>
-        `;
+            <div class="chart-stage w-full flex items-center justify-center rounded-xl border border-slate-200 dark:border-slate-800">
+              <div class="text-center max-w-sm p-6">
+                <i data-lucide="map-off" class="w-12 h-12 text-slate-400 mx-auto"></i>
+                <h3 class="mt-3 text-base font-bold text-slate-900 dark:text-white">No ${selectedChartType.toUpperCase()} chart available</h3>
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">This airport does not have a bundled chart for this procedure yet.</p>
+              </div>
+            </div>`;
+          lucide.createIcons();
+          return;
         }
+        preloadChartEntries(entries);
+        selectedChartIndex = Math.min(selectedChartIndex, entries.length - 1);
+        const entry = entries[selectedChartIndex];
+        const chartUrl = entry.file.startsWith("http") || entry.file.startsWith("blob:") ? entry.file : `./${entry.file}`;
 
+        container.innerHTML = `
+          <div class="w-full flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div class="flex items-center gap-2">
+              <select id="chart-entry-select" onchange="selectChartEntry(this.value)" class="bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1.5 text-xs font-semibold">
+                ${entries.map((item, index) => `<option value="${index}" ${index === selectedChartIndex ? "selected" : ""}>${escapeHtml(item.name)}</option>`).join("")}
+              </select>
+            </div>
+          </div>
+          <div id="chart-stage" class="chart-stage ${chartGridVisible ? "" : "chart-grid-hidden"} relative w-full flex items-center justify-center overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800">
+            <div class="chart-loading-state" aria-live="polite">
+              <div class="relative flex items-center justify-center">
+                <div class="chart-loader-orbit"></div>
+                <div class="chart-loader-core"></div>
+              </div>
+              <span class="sr-only">Loading chart</span>
+            </div>
+            <img id="active-chart-image" src="${chartUrl}" alt="${escapeHtml(entry.name)}" class="max-w-none max-h-none w-auto object-contain rounded-xl shadow-md ${chartHighContrast ? "chart-high-contrast" : ""}" />
+            <canvas id="chart-drawing-layer" class="chart-drawing-layer absolute inset-0 w-full h-full pointer-events-none"></canvas>
+            <div id="chart-fallback-box" class="hidden absolute inset-0 flex items-center justify-center text-center p-8">
+              <div><i data-lucide="file-warning" class="w-12 h-12 text-amber-500 mx-auto"></i><h3 class="text-base font-bold text-slate-900 dark:text-white">Chart file not found</h3><p class="text-xs text-slate-400 mt-1">This chart is not available in the read-only library.</p></div>
+            </div>
+          </div>`;
+
+        const image = document.getElementById("active-chart-image");
+        image.onload = () => {
+          document.getElementById("chart-stage")?.classList.add("chart-ready");
+          fitChartImage();
+          syncDrawingCanvas();
+        };
+        image.onerror = () => {
+          document.getElementById("chart-stage")?.classList.add("chart-ready");
+          image.classList.add("hidden");
+          document.getElementById("chart-fallback-box").classList.remove("hidden");
+        };
+        const stage = document.getElementById("chart-stage");
+        stage.addEventListener("pointerdown", startChartPan);
+        stage.addEventListener("pointermove", moveChartPointer);
+        stage.addEventListener("pointerup", endChartPointer);
+        stage.addEventListener("pointerleave", endChartPointer);
+        syncDrawingCanvas();
+        updateChartTransform();
         lucide.createIcons();
+      }
+
+      function updateChartTypeTabs(airport = airportDatabase.find((item) => item.icao === selectedChartAirport)) {
+        if (!airport) return;
+        document.querySelectorAll(".chart-type-tab").forEach((button) => {
+          const type = button.dataset.charttype;
+          const available = getChartEntries(airport, type).length > 0;
+          button.disabled = !available;
+          button.classList.toggle("opacity-40", !available);
+          button.classList.toggle("cursor-not-allowed", !available);
+          button.setAttribute("aria-disabled", String(!available));
+        });
+      }
+
+      function selectChartEntry(index) {
+        selectedChartIndex = Number(index) || 0;
+        resetChartView();
+        renderActiveChart();
+      }
+
+
+      function updateChartTransform() {
+        const effectiveZoom = chartViewState.baseZoom * chartViewState.zoom;
+        const transform = `translate(${chartViewState.panX}px, ${chartViewState.panY}px) scale(${effectiveZoom}) rotate(${chartViewState.rotation}deg)`;
+        [document.getElementById("active-chart-image"), document.getElementById("chart-drawing-layer")].forEach((element) => { if (element) element.style.transform = transform; });
+        const label = document.getElementById("chart-zoom-label");
+        if (label) label.textContent = `${Math.round(effectiveZoom * 100)}%`;
+      }
+
+      function fitChartImage() {
+        const stage = document.getElementById("chart-stage");
+        const image = document.getElementById("active-chart-image");
+        if (!stage || !image || !image.naturalWidth || !image.naturalHeight) return;
+        const availableWidth = Math.max(160, stage.clientWidth - 32);
+        const availableHeight = Math.max(160, stage.clientHeight - 32);
+        chartViewState.baseZoom = Math.min(1, availableWidth / image.naturalWidth, availableHeight / image.naturalHeight);
+        chartViewState.panX = 0;
+        chartViewState.panY = 0;
+        updateChartTransform();
+      }
+
+      function fitChartToViewport() {
+        chartViewState.zoom = 1;
+        chartViewState.rotation = 0;
+        fitChartImage();
+      }
+
+      function toggleChartFullscreen() {
+        const stage = document.getElementById("chart-stage");
+        if (!stage) return;
+        if (document.fullscreenElement) {
+          document.exitFullscreen();
+        } else if (stage.requestFullscreen) {
+          stage.requestFullscreen();
+        }
+      }
+
+      function handleChartKeyboardShortcuts(event) {
+        if (!document.getElementById("view-charts")?.classList.contains("hidden")) {
+          if (event.key === "+" || event.key === "=") changeChartZoom(0.1);
+          if (event.key === "-") changeChartZoom(-0.1);
+          if (event.key.toLowerCase() === "r") rotateChart();
+          if (event.key === "0") fitChartToViewport();
+        }
+      }
+
+      function changeChartZoom(amount) {
+        chartViewState.zoom = Math.min(4, Math.max(0.25, chartViewState.zoom + amount));
+        updateChartTransform();
+      }
+
+      function rotateChart() {
+        chartViewState.rotation = (chartViewState.rotation + 90) % 360;
+        updateChartTransform();
+      }
+
+      function resetChartView() {
+        chartViewState = { zoom: 1, baseZoom: chartViewState.baseZoom, rotation: 0, panX: 0, panY: 0, drawing: chartViewState.drawing };
+        updateChartTransform();
+      }
+
+      function toggleChartDrawing() {
+        chartViewState.drawing = !chartViewState.drawing;
+        const canvas = document.getElementById("chart-drawing-layer");
+        const button = document.getElementById("chart-draw-button");
+        if (canvas) canvas.style.pointerEvents = chartViewState.drawing ? "auto" : "none";
+        if (button) button.classList.toggle("theme-accent-bg", chartViewState.drawing);
+      }
+
+      function toggleChartGrid() {
+        chartGridVisible = !chartGridVisible;
+        document.getElementById("chart-stage")?.classList.toggle("chart-grid-hidden", !chartGridVisible);
+        document.getElementById("chart-grid-button")?.classList.toggle("theme-accent-bg", !chartGridVisible);
+      }
+
+      function toggleChartContrast() {
+        chartHighContrast = !chartHighContrast;
+        document.getElementById("active-chart-image")?.classList.toggle("chart-high-contrast", chartHighContrast);
+        document.getElementById("chart-contrast-button")?.classList.toggle("theme-accent-bg", chartHighContrast);
+      }
+
+      function syncDrawingCanvas() {
+        const stage = document.getElementById("chart-stage");
+        const canvas = document.getElementById("chart-drawing-layer");
+        if (!stage || !canvas) return;
+        canvas.width = stage.clientWidth;
+        canvas.height = stage.clientHeight;
+        const savedDrawing = chartDrawings[getChartKey()];
+        if (savedDrawing) canvas.getContext("2d").drawImage(savedDrawing, 0, 0);
+      }
+
+      function startChartPan(event) {
+        if (chartViewState.drawing) {
+          const canvas = document.getElementById("chart-drawing-layer");
+          const rect = canvas.getBoundingClientRect();
+          const context = canvas.getContext("2d");
+          context.beginPath();
+          context.moveTo(event.clientX - rect.left, event.clientY - rect.top);
+          chartPointerState = { x: event.clientX, y: event.clientY };
+          return;
+        }
+        chartPointerState = { x: event.clientX, y: event.clientY, panX: chartViewState.panX, panY: chartViewState.panY };
+      }
+
+      function moveChartPointer(event) {
+        if (chartViewState.drawing && event.buttons) {
+          const canvas = document.getElementById("chart-drawing-layer");
+          const rect = canvas.getBoundingClientRect();
+          const context = canvas.getContext("2d");
+          context.strokeStyle = "#ef4444";
+          context.lineWidth = 3;
+          context.lineCap = "round";
+          context.lineTo(event.clientX - rect.left, event.clientY - rect.top);
+          context.stroke();
+          chartPointerState = { x: event.clientX, y: event.clientY };
+          return;
+        }
+        if (chartPointerState && event.buttons) {
+          chartViewState.panX = chartPointerState.panX + event.clientX - chartPointerState.x;
+          chartViewState.panY = chartPointerState.panY + event.clientY - chartPointerState.y;
+          updateChartTransform();
+        }
+      }
+
+      function endChartPointer() {
+        chartPointerState = null;
       }
 
       // DISCORD WEBHOOK SUBMISSION LOGIC
@@ -2699,6 +3341,33 @@
         return out;
       }
 
+      const atcPhraseTranslations = {
+        es: {
+          "Delivery": "Entrega", "Ground": "Tierra", "Tower": "Torre", "Departure": "Salidas", "Approach": "Aproximación", "Center": "Centro", "request": "solicito", "cleared to": "autorizado a", "climb and maintain": "ascienda y mantenga", "runway": "pista", "via": "por", "hold short": "mantenga posición antes de", "ready for takeoff": "listo para despegar", "cleared for takeoff": "autorizado para despegar", "radar contact": "contacto radar", "descending": "descendiendo", "cleared to land": "autorizado para aterrizar", "going around": "realizando motor y al aire", "Taxi to": "Ruede a"
+        },
+        fr: {
+          "Delivery": "Prévol", "Ground": "Sol", "Tower": "Tour", "Departure": "Départ", "Approach": "Approche", "Center": "Centre", "request": "demande", "cleared to": "autorisé vers", "climb and maintain": "montez et maintenez", "runway": "piste", "via": "via", "hold short": "maintenez avant", "ready for takeoff": "prêt au décollage", "cleared for takeoff": "autorisé au décollage", "radar contact": "contact radar", "descending": "en descente", "cleared to land": "autorisé à l'atterrissage", "going around": "remettons les gaz", "Taxi to": "Roulez vers"
+        },
+        de: {
+          "Delivery": "Clearance", "Ground": "Boden", "Tower": "Turm", "Departure": "Abflug", "Approach": "Anflug", "Center": "Center", "request": "bitte", "cleared to": "freigegeben nach", "climb and maintain": "steigen Sie und halten Sie", "runway": "Startbahn", "via": "über", "hold short": "halten Sie vor", "ready for takeoff": "abflugbereit", "cleared for takeoff": "Start frei", "radar contact": "Radar-Kontakt", "descending": "im Sinkflug", "cleared to land": "Landung frei", "going around": "starten durch", "Taxi to": "Rollen Sie zu"
+        },
+        pt: {
+          "Delivery": "Entrega", "Ground": "Solo", "Tower": "Torre", "Departure": "Partida", "Approach": "Aproximação", "Center": "Centro", "request": "solicito", "cleared to": "autorizado para", "climb and maintain": "suba e mantenha", "runway": "pista", "via": "pela", "hold short": "aguarde antes da", "ready for takeoff": "pronto para decolagem", "cleared for takeoff": "autorizado para decolagem", "radar contact": "contato radar", "descending": "descendo", "cleared to land": "autorizado a pousar", "going around": "arremetendo", "Taxi to": "Taxie para"
+        },
+        ru: {
+          "Delivery": "Диспетчерская", "Ground": "Руление", "Tower": "Вышка", "Departure": "Вылет", "Approach": "Подход", "Center": "Центр", "request": "запрашиваю", "cleared to": "разрешено следовать", "climb and maintain": "наберите и сохраняйте", "runway": "ВПП", "via": "через", "hold short": "остановитесь перед", "ready for takeoff": "готов к взлету", "cleared for takeoff": "взлет разрешен", "radar contact": "радиолокационный контакт", "descending": "снижаемся", "cleared to land": "посадка разрешена", "going around": "ухожу на второй круг", "Taxi to": "Рулите к"
+        },
+        ja: {
+          "Delivery": "デリバリー", "Ground": "グラウンド", "Tower": "タワー", "Departure": "出発", "Approach": "アプローチ", "Center": "センター", "request": "要求します", "cleared to": "許可します", "climb and maintain": "上昇して維持", "runway": "滑走路", "via": "経由", "hold short": "手前で停止", "ready for takeoff": "離陸準備完了", "cleared for takeoff": "離陸を許可", "radar contact": "レーダーコンタクト", "descending": "降下中", "cleared to land": "着陸を許可", "going around": "ゴーアラウンド", "Taxi to": "へタキシー"
+        }
+      };
+
+      function translateAtcLine(line) {
+        const replacements = atcPhraseTranslations[currentLang];
+        if (!replacements) return line;
+        return Object.entries(replacements).reduce((result, [source, target]) => result.split(source).join(target), line);
+      }
+
       // Render Script Output Cards
       function renderScriptCards() {
         const container = document.getElementById("script-cards-container");
@@ -2713,7 +3382,7 @@
           container.innerHTML = `
           <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-8 text-center text-slate-400">
             <i data-lucide="radio-off" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
-            <p>No scripts match this filter phase.</p>
+            <p>${escapeHtml(t("no_scripts", "No scripts match this filter phase."))}</p>
           </div>
         `;
           lucide.createIcons();
@@ -2721,9 +3390,9 @@
         }
 
         filtered.forEach((item) => {
-          const pilotReq = processTemplate(item.pilotRequest);
-          const atcExp = processTemplate(item.atcExpectation);
-          const pilotRead = processTemplate(item.pilotReadback);
+          const pilotReq = translateAtcLine(processTemplate(item.pilotRequest));
+          const atcExp = translateAtcLine(processTemplate(item.atcExpectation));
+          const pilotRead = translateAtcLine(processTemplate(item.pilotReadback));
 
           const isEmergency = item.phase === "emergency";
           const isAlternate = item.phase === "alternate";
@@ -2755,7 +3424,7 @@
             </div>
             <span class="text-xs font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1 bg-slate-100 dark:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800">
               <i data-lucide="antenna" class="w-3 h-3 theme-accent-text"></i>
-              ${processTemplate(item.facility)}
+              ${escapeHtml(translateAtcLine(processTemplate(item.facility)))}
             </span>
           </div>
 
@@ -2768,7 +3437,7 @@
                 <span class="text-[10px] font-sans uppercase tracking-wider ${
                   isEmergency ? "text-rose-500" : "theme-accent-text"
                 } font-bold flex items-center gap-1">
-                  <i data-lucide="mic" class="w-3 h-3"></i> You (Pilot Initial Request)
+                  <i data-lucide="mic" class="w-3 h-3"></i> ${escapeHtml(t("pilot_request", "You (Pilot Initial Request)"))}
                 </span>
                 <p class="text-slate-800 dark:text-slate-200 font-medium select-all leading-relaxed">${escapeHtml(
                   pilotReq
@@ -2778,14 +3447,14 @@
                 pilotReq
               )}', this)" class="self-start sm:self-center shrink-0 flex items-center gap-1 text-[11px] theme-accent-bg theme-accent-bg-hover text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">
                 <i data-lucide="copy" class="w-3 h-3"></i>
-                <span>Copy</span>
+                <span>${escapeHtml(t("copy", "Copy"))}</span>
               </button>
             </div>
 
             <!-- Step 2: Controller Response -->
             <div class="bg-slate-50/50 dark:bg-slate-950/40 rounded-xl p-3 border border-slate-100 dark:border-slate-800/50 space-y-1">
               <span class="text-[10px] font-sans uppercase tracking-wider text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
-                <i data-lucide="headphones" class="w-3 h-3"></i> ATC Response (Listen to Controller)
+                <i data-lucide="headphones" class="w-3 h-3"></i> ${escapeHtml(t("atc_response", "ATC Response (Listen to Controller)"))}
               </span>
               <p class="text-slate-500 dark:text-slate-400 italic leading-relaxed">${escapeHtml(
                 atcExp
@@ -2798,7 +3467,7 @@
                 <span class="text-[10px] font-sans uppercase tracking-wider ${
                   isEmergency ? "text-rose-500" : "theme-accent-text"
                 } font-bold flex items-center gap-1">
-                  <i data-lucide="check-circle-2" class="w-3 h-3"></i> You (Mandatory Readback)
+                  <i data-lucide="check-circle-2" class="w-3 h-3"></i> ${escapeHtml(t("pilot_readback", "You (Mandatory Readback)"))}
                 </span>
                 <p class="text-slate-800 dark:text-slate-200 font-medium select-all leading-relaxed">${escapeHtml(
                   pilotRead
@@ -2808,7 +3477,7 @@
                 pilotRead
               )}', this)" class="self-start sm:self-center shrink-0 flex items-center gap-1 text-[11px] theme-accent-bg theme-accent-bg-hover text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">
                 <i data-lucide="copy" class="w-3 h-3"></i>
-                <span>Copy</span>
+                <span>${escapeHtml(t("copy", "Copy"))}</span>
               </button>
             </div>
 
@@ -2977,6 +3646,10 @@
       }
       function closeAppearanceModal() {
         document.getElementById("appearance-modal").classList.add("hidden");
+        if (pendingHueHex) {
+          showToast("Custom theme color applied!");
+          pendingHueHex = null;
+        }
       }
 
       const themePalettes = {
@@ -3057,7 +3730,8 @@
       // Custom Color Wheel Spectrum Handler
       function handleHueSliderChange(hueVal) {
         const hex = hslToHex(hueVal, 85, 45);
-        applyCustomHexColor(hex);
+        pendingHueHex = hex;
+        applyCustomHexColor(hex, false);
       }
 
       function hslToHex(h, s, l) {
@@ -3106,7 +3780,7 @@
         return `#${r}${g}${b}`;
       }
 
-      function applyCustomHexColor(hex) {
+      function applyCustomHexColor(hex, notify = true) {
         if (!hex || !hex.startsWith("#")) return;
         const subtle = `${hex}20`;
         const border = `${hex}50`;
@@ -3119,7 +3793,10 @@
         const hexInput = document.getElementById("custom-hex-input");
         if (hexInput && hexInput.value !== hex) hexInput.value = hex;
 
-        showToast(`Custom theme color applied!`);
+        if (notify) {
+          pendingHueHex = hex;
+          showToast(`Custom theme color applied!`);
+        }
       }
 
       function setCssVariables(main, hover, light, subtle, border) {
@@ -3143,8 +3820,66 @@
 
       // Toggle Dark/Light Mode
       function toggleTheme() {
-        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.toggle("dark");
+        localStorage.setItem("pfhelper-theme", isDark ? "dark" : "light");
         showToast(`Theme switched!`);
+      }
+
+      function setAccessibilityClass(name, enabled) {
+        document.documentElement.classList.toggle(name, enabled);
+        localStorage.setItem(name, enabled ? "1" : "0");
+      }
+
+      function applyAccessibilityPreferences() {
+        const settings = [
+          ["accessibility-high-contrast", "high-contrast-toggle"],
+          ["accessibility-reduced-motion", "reduced-motion-toggle"],
+          ["accessibility-focus-mode", "focus-mode-toggle"],
+          ["accessibility-reading-spacing", "reading-spacing-toggle"],
+          ["accessibility-compact", "compact-layout-toggle"],
+          ["accessibility-large-targets", "larger-targets-toggle"],
+        ];
+        settings.forEach(([className, controlId]) => {
+          const enabled = localStorage.getItem(className) === "1";
+          document.documentElement.classList.toggle(className, enabled);
+          const control = document.getElementById(controlId);
+          if (control) {
+            if (control.type === "checkbox") control.checked = enabled;
+            else control.classList.toggle("theme-accent-bg", enabled);
+          }
+        });
+      }
+
+      function toggleHighContrast() {
+        const enabled = !document.documentElement.classList.contains("accessibility-high-contrast");
+        setAccessibilityClass("accessibility-high-contrast", enabled);
+        applyAccessibilityPreferences();
+      }
+
+      function toggleReducedMotion() {
+        const enabled = !document.documentElement.classList.contains("accessibility-reduced-motion");
+        setAccessibilityClass("accessibility-reduced-motion", enabled);
+        applyAccessibilityPreferences();
+      }
+
+      function toggleFocusMode() {
+        const enabled = !document.documentElement.classList.contains("accessibility-focus-mode");
+        setAccessibilityClass("accessibility-focus-mode", enabled);
+        applyAccessibilityPreferences();
+      }
+
+      function toggleReadingSpacing() {
+        const enabled = !document.documentElement.classList.contains("accessibility-reading-spacing");
+        setAccessibilityClass("accessibility-reading-spacing", enabled);
+        applyAccessibilityPreferences();
+      }
+
+      function toggleCompactLayout(enabled) {
+        setAccessibilityClass("accessibility-compact", enabled);
+      }
+
+      function toggleLargerTargets(enabled) {
+        setAccessibilityClass("accessibility-large-targets", enabled);
       }
 
       // Toast Utility
@@ -3179,6 +3914,15 @@
 
       function escapeQuotes(str) {
         return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+      }
+
+      const savedTheme = localStorage.getItem("pfhelper-theme");
+      if (savedTheme === "light") document.documentElement.classList.remove("dark");
+      const savedLanguage = localStorage.getItem("pfhelper-language");
+      if (savedLanguage && translations[savedLanguage]) {
+        document.getElementById("lang-select").value = savedLanguage;
+        currentLang = savedLanguage;
+        translatePage(savedLanguage);
       }
     </script>
   </body>

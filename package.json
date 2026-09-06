@@ -1,0 +1,13 @@
+{
+  "name": "pfhelper",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Project Flight aviation helper",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}
