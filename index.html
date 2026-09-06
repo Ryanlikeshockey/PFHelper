@@ -3085,9 +3085,22 @@
           const button = document.getElementById(id);
           if (!button) return;
           button.addEventListener("pointerdown", (event) => startChartZoomHold(direction, event));
-          ["pointerup", "pointercancel", "pointerleave"].forEach((eventName) => button.addEventListener(eventName, stopChartZoomHold));
+          button.addEventListener("click", () => {
+            if (button.dataset.zoomPointer === "1") {
+              delete button.dataset.zoomPointer;
+              return;
+            }
+            changeChartZoom(direction);
+          });
+          button.addEventListener("pointerup", () => {
+            button.dataset.zoomPointer = "1";
+            stopChartZoomHold();
+          });
+          ["pointercancel", "pointerleave"].forEach((eventName) => button.addEventListener(eventName, stopChartZoomHold));
         });
         window.addEventListener("blur", stopChartZoomHold);
+        window.addEventListener("pointerup", stopChartZoomHold);
+        window.addEventListener("pointercancel", stopChartZoomHold);
       }
 
       function rotateChart() {
