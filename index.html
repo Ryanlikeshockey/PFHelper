@@ -2831,6 +2831,8 @@
 
           btn.onclick = () => {
             selectedChartAirport = ap.icao;
+            selectedChartIndex = 0;
+            resetChartView();
             renderChartAirportList();
             renderActiveChart();
           };
@@ -3011,7 +3013,7 @@
         const transform = `translate(${chartViewState.panX}px, ${chartViewState.panY}px) scale(${effectiveZoom}) rotate(${chartViewState.rotation}deg)`;
         [document.getElementById("active-chart-image"), document.getElementById("chart-drawing-layer")].forEach((element) => { if (element) element.style.transform = transform; });
         const label = document.getElementById("chart-zoom-label");
-        if (label) label.textContent = `${Math.round(effectiveZoom * 100)}%`;
+        if (label) label.textContent = `${Math.round(chartViewState.zoom * 100)}%`;
       }
 
       function fitChartImage() {
@@ -3109,7 +3111,7 @@
       }
 
       function resetChartView() {
-        chartViewState = { zoom: 1, baseZoom: chartViewState.baseZoom, rotation: 0, panX: 0, panY: 0, drawing: chartViewState.drawing };
+        chartViewState = { zoom: 1, baseZoom: 1, rotation: 0, panX: 0, panY: 0, drawing: chartViewState.drawing };
         updateChartTransform();
       }
 
