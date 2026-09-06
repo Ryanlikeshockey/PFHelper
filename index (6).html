@@ -1,0 +1,3185 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PFHelper - Roblox Project Flight Aviation Suite</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+              mono: ["JetBrains Mono", "Consolas", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style id="custom-theme-styles">
+      /* Dynamic CSS Variables for Customizer */
+      :root {
+        --accent-main: #0284c7;
+        --accent-hover: #0369a1;
+        --accent-light: #38bdf8;
+        --accent-bg-subtle: rgba(56, 189, 248, 0.12);
+        --accent-border: rgba(56, 189, 248, 0.35);
+        --card-radius: 1rem;
+        --text-scale: 1rem;
+      }
+
+      html,
+      body {
+        font-size: var(--text-scale);
+        transition: font-size 0.2s ease, background-color 0.3s ease;
+      }
+
+      /* Pervasive Accent Color Classes */
+      .theme-accent-bg {
+        background-color: var(--accent-main) !important;
+      }
+      .theme-accent-bg-hover:hover {
+        background-color: var(--accent-hover) !important;
+        opacity: 0.95;
+      }
+      .theme-accent-text {
+        color: var(--accent-light) !important;
+      }
+      .theme-accent-border {
+        border-color: var(--accent-border) !important;
+      }
+      .theme-accent-subtle-bg {
+        background-color: var(--accent-bg-subtle) !important;
+      }
+
+      /* Interactive element focus ring override */
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible {
+        outline: 2px solid var(--accent-light) !important;
+        outline-offset: 3px !important;
+      }
+
+      /* Dynamic Radius override class */
+      .dynamic-card {
+        border-radius: var(--card-radius) !important;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      /* Custom Color Wheel Spectrum Slider */
+      .hue-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 14px;
+        border-radius: 7px;
+        background: linear-gradient(
+          to right,
+          #ff0000,
+          #ffff00,
+          #00ff00,
+          #00ffff,
+          #0000ff,
+          #ff00ff,
+          #ff0000
+        );
+        outline: none;
+      }
+      .hue-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 3px solid #0f172a;
+        cursor: pointer;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+        transition: transform 0.15s ease;
+      }
+      .hue-slider::-webkit-slider-thumb:hover {
+        transform: scale(1.15);
+      }
+
+      /* UI Smooth View Animations */
+      .animate-fade-in {
+        animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Custom Scrollbars */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.4);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(107, 114, 128, 0.7);
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-900 dark:bg-slate-950 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col transition-colors duration-200"
+  >
+    <!-- Toast Notification Container -->
+    <div
+      id="toast-container"
+      class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"
+      aria-live="polite"
+    ></div>
+
+    <!-- Main Navigation Header -->
+    <header
+      class="border-b border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 backdrop-blur sticky top-0 z-40"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="h-16 flex items-center justify-between">
+          <!-- Brand / Logo -->
+          <button
+            onclick="switchView('hub')"
+            class="flex items-center gap-3 text-left group"
+          >
+            <div
+              class="w-10 h-10 dynamic-card theme-accent-subtle-bg border theme-accent-border flex items-center justify-center theme-accent-text font-bold shadow-sm group-hover:scale-105 transition-transform"
+            >
+              <i data-lucide="plane" class="w-5 h-5 transform -rotate-45"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h1
+                  class="text-lg font-black tracking-wider text-slate-900 dark:text-white"
+                >
+                  PF<span class="theme-accent-text">HELPER</span>
+                </h1>
+                <span
+                  class="text-[10px] font-mono px-2 py-0.5 rounded-full theme-accent-subtle-bg theme-accent-text border theme-accent-border font-semibold"
+                  >Project Flight</span
+                >
+              </div>
+              <p
+                class="text-xs text-slate-500 dark:text-slate-400"
+                data-i18n="tagline"
+              >
+                Roblox Aviation Suite
+              </p>
+            </div>
+          </button>
+
+          <!-- Tool Switcher Navigation Header Tabs -->
+          <nav
+            class="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200 dark:border-slate-700/60 text-xs font-medium"
+          >
+            <button
+              id="nav-hub-btn"
+              onclick="switchView('hub')"
+              class="px-3.5 py-1.5 rounded-lg theme-accent-bg text-white font-bold shadow-sm transition-all flex items-center gap-1.5"
+            >
+              <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+              <span data-i18n="nav_hub">PFHelper Hub</span>
+            </button>
+            <button
+              id="nav-atc-btn"
+              onclick="switchView('atc')"
+              class="px-3.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-1.5"
+            >
+              <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+              <span>ATCHelper</span>
+            </button>
+            <button
+              id="nav-charts-btn"
+              onclick="switchView('charts')"
+              class="px-3.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1.5"
+            >
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+              <span>CHARTSHelper</span>
+            </button>
+            <button
+              id="nav-feedback-btn"
+              onclick="switchView('feedback')"
+              class="px-3.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1.5"
+            >
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              <span data-i18n="nav_feedback">Feedback</span>
+            </button>
+          </nav>
+
+          <!-- Right Header Actions -->
+          <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Settings / Appearance Customizer Button -->
+            <button
+              onclick="openAppearanceModal()"
+              class="flex items-center gap-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 transition-colors"
+              title="Customize Settings & Appearance"
+            >
+              <i
+                data-lucide="settings-2"
+                class="w-3.5 h-3.5 theme-accent-text"
+              ></i>
+              <span class="hidden sm:inline" data-i18n="btn_settings"
+                >Settings</span
+              >
+            </button>
+
+            <!-- Dark/Light Theme Toggle -->
+            <button
+              id="theme-toggle"
+              onclick="toggleTheme()"
+              class="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg transition-colors"
+              aria-label="Toggle Theme"
+            >
+              <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+              <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Searchable Airport Datalist Options -->
+    <datalist id="airport-list">
+      <option value="LCLK">LCLK - Larnaca Int (Cyprus)</option>
+      <option value="LCPH">LCPH - Paphos Int (Cyprus)</option>
+      <option value="LCRA">LCRA - Akrotiri RAF Base (Cyprus)</option>
+      <option value="MDAB">MDAB - Arroyo Barril (Dominican Rep.)</option>
+      <option value="MDCR">MDCR - Cabo Rojo (Dominican Rep.)</option>
+      <option value="MDST">MDST - Cibao Int (Dominican Rep.)</option>
+      <option value="MDPC">MDPC - Punta Cana Int (Dominican Rep.)</option>
+      <option value="MTCA">MTCA - Antoine Simon Airport (Haiti)</option>
+      <option value="LPMA">LPMA - Madeira Airport (Portugal)</option>
+      <option value="EGKK">EGKK - London Gatwick (UK)</option>
+      <option value="EGLC">EGLC - London City Airport (UK)</option>
+      <option value="EGFF">EGFF - Cardiff Airport (Wales, UK)</option>
+      <option value="EGHJ">EGHJ - Bembridge Airport (Isle of Wight)</option>
+      <option value="EGHC">EGHC - Land's End Airport (UK)</option>
+      <option value="EGCK">EGCK - Caernarfon Airport (Wales, UK)</option>
+      <option value="X2BH">X2BH - Bolt Head Airfield (UK)</option>
+      <option value="PAFA">PAFA - Fairbanks Int (Alaska, USA)</option>
+    </datalist>
+
+    <!-- MAIN HUB SCREEN (DEFAULT HOME PAGE) -->
+    <div
+      id="view-hub"
+      class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-10 flex flex-col items-center animate-fade-in"
+    >
+      <!-- Hero Header -->
+      <div class="text-center max-w-3xl mb-10 space-y-3">
+        <span
+          class="text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full theme-accent-subtle-bg theme-accent-text border theme-accent-border inline-block"
+          data-i18n="hub_badge"
+          >Project Flight Roblox Hub</span
+        >
+        <h2
+          class="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 dark:text-white"
+        >
+          <span data-i18n="hub_welcome">Welcome to</span>
+          <span class="theme-accent-text">PFHelper</span>
+        </h2>
+        <p
+          class="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed"
+          data-i18n="hub_desc"
+        >
+          Your ultimate flight deck companion for Project Flight on Roblox.
+          Select an aviation tool or explore community resources below.
+        </p>
+      </div>
+
+      <!-- Main Tool Selector Cards (ATCHelper, CHARTSHelper, Feedback) -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl mb-14">
+        <!-- Tool 1: ATCHelper -->
+        <div
+          onclick="switchView('atc')"
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-6 shadow-xl hover:border-sky-500/50 dark:hover:border-sky-500/50 transition-all cursor-pointer group flex flex-col justify-between hover:-translate-y-1"
+        >
+          <div class="space-y-4">
+            <div
+              class="w-12 h-12 dynamic-card theme-accent-subtle-bg border theme-accent-border flex items-center justify-center theme-accent-text font-bold shadow-sm group-hover:scale-110 transition-transform"
+            >
+              <i data-lucide="message-square" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h3
+                class="text-xl font-bold text-slate-900 dark:text-white flex items-center justify-between"
+              >
+                ATCHelper
+                <i
+                  data-lucide="arrow-right"
+                  class="w-5 h-5 theme-accent-text opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all"
+                ></i>
+              </h3>
+              <p
+                class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed"
+                data-i18n="atc_tool_desc"
+              >
+                Generate instant, copy-pasteable ATC radio chat lines for all
+                flight phases, emergencies, and alternate airport diversions.
+              </p>
+            </div>
+          </div>
+          <div
+            class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold theme-accent-text"
+          >
+            <span data-i18n="launch_tool">Launch Generator</span>
+            <span
+              class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-mono"
+              data-i18n="status_now"
+              >AVAILABLE NOW</span
+            >
+          </div>
+        </div>
+
+        <!-- Tool 2: CHARTSHelper -->
+        <div
+          onclick="switchView('charts')"
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-6 shadow-xl hover:border-amber-500/50 dark:hover:border-amber-500/50 transition-all cursor-pointer group flex flex-col justify-between hover:-translate-y-1"
+        >
+          <div class="space-y-4">
+            <div
+              class="w-12 h-12 dynamic-card bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 font-bold shadow-sm group-hover:scale-110 transition-transform"
+            >
+              <i data-lucide="file-text" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h3
+                class="text-xl font-bold text-slate-900 dark:text-white flex items-center justify-between"
+              >
+                CHARTSHelper
+                <i
+                  data-lucide="arrow-right"
+                  class="w-5 h-5 text-amber-500 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all"
+                ></i>
+              </h3>
+              <p
+                class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed"
+                data-i18n="charts_tool_desc"
+              >
+                Access airport diagrams, runway layouts, gate numbers, and
+                taxiway maps for all in-game Project Flight airports.
+              </p>
+            </div>
+          </div>
+          <div
+            class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-amber-500"
+          >
+            <span data-i18n="browse_charts">Browse Charts</span>
+            <span
+              class="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-mono"
+              data-i18n="status_interactive"
+              >INTERACTIVE</span
+            >
+          </div>
+        </div>
+
+        <!-- Tool 3: Feedback -->
+        <div
+          onclick="switchView('feedback')"
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-6 shadow-xl hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all cursor-pointer group flex flex-col justify-between hover:-translate-y-1"
+        >
+          <div class="space-y-4">
+            <div
+              class="w-12 h-12 dynamic-card bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 font-bold shadow-sm group-hover:scale-110 transition-transform"
+            >
+              <i data-lucide="send" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h3
+                class="text-xl font-bold text-slate-900 dark:text-white flex items-center justify-between"
+              >
+                <span data-i18n="feedback_hub">Feedback Hub</span>
+                <i
+                  data-lucide="arrow-right"
+                  class="w-5 h-5 text-indigo-500 opacity-0 group-hover:opacity-100 transform group-hover:translate-x-1 transition-all"
+                ></i>
+              </h3>
+              <p
+                class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed"
+                data-i18n="feedback_tool_desc"
+              >
+                Send suggestions, request missing airport charts, report bugs,
+                or request features directly to the developers.
+              </p>
+            </div>
+          </div>
+          <div
+            class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-bold text-indigo-500"
+          >
+            <span data-i18n="submit_request">Submit Request</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMUNITY LINKS & ECOSYSTEM SECTION -->
+      <div
+        class="w-full max-w-5xl space-y-4 border-t border-slate-200 dark:border-slate-800 pt-8"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <h3
+              class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"
+            >
+              <i data-lucide="link" class="w-4 h-4 theme-accent-text"></i>
+              <span data-i18n="ecosystem_title"
+                >Project Flight Community & Ecosystem Links</span
+              >
+            </h3>
+            <p
+              class="text-xs text-slate-500 dark:text-slate-400"
+              data-i18n="ecosystem_sub"
+            >
+              Quick access to official Discords, tracking tools, and game links.
+            </p>
+          </div>
+        </div>
+
+        <!-- Grid of Links (Updated Project Flight Game Link to roblox.com/games/6349094071/Project-Flight-Alpha) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <!-- Project Flight Discord -->
+          <a
+            href="https://discord.gg/projectflight"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-3.5 flex items-center justify-between hover:border-indigo-500/50 hover:bg-indigo-50/20 dark:hover:bg-indigo-950/20 transition-all group shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 font-bold"
+              >
+                <i data-lucide="message-square-plus" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-900 dark:text-white">
+                  Project Flight Discord
+                </div>
+                <div class="text-[11px] font-mono text-indigo-500">
+                  discord.gg/projectflight
+                </div>
+              </div>
+            </div>
+            <i
+              data-lucide="external-link"
+              class="w-4 h-4 text-slate-400 group-hover:text-indigo-500 transition-colors"
+            ></i>
+          </a>
+
+          <!-- PFATC Discord -->
+          <a
+            href="https://discord.gg/pfatc"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-3.5 flex items-center justify-between hover:border-sky-500/50 hover:bg-sky-50/20 dark:hover:bg-sky-950/20 transition-all group shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-500 font-bold"
+              >
+                <i data-lucide="headphones" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-900 dark:text-white">
+                  PFATC Discord
+                </div>
+                <div class="text-[11px] font-mono text-sky-500">
+                  discord.gg/pfatc
+                </div>
+              </div>
+            </div>
+            <i
+              data-lucide="external-link"
+              class="w-4 h-4 text-slate-400 group-hover:text-sky-500 transition-colors"
+            ></i>
+          </a>
+
+          <!-- PFTracker Discord -->
+          <a
+            href="https://discord.gg/NJfPaxsxQv"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-3.5 flex items-center justify-between hover:border-emerald-500/50 hover:bg-emerald-50/20 dark:hover:bg-emerald-950/20 transition-all group shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 font-bold"
+              >
+                <i data-lucide="radar" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-900 dark:text-white">
+                  PFTracker Discord
+                </div>
+                <div class="text-[11px] font-mono text-emerald-500">
+                  discord.gg/NJfPaxsxQv
+                </div>
+              </div>
+            </div>
+            <i
+              data-lucide="external-link"
+              class="w-4 h-4 text-slate-400 group-hover:text-emerald-500 transition-colors"
+            ></i>
+          </a>
+
+          <!-- Project Flight Game Link (UPDATED DIRECLTY TO ROBLOX GAME) -->
+          <a
+            href="https://www.roblox.com/games/6349094071/Project-Flight-Alpha"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-3.5 flex items-center justify-between hover:border-rose-500/50 hover:bg-rose-50/20 dark:hover:bg-rose-950/20 transition-all group shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500 font-bold"
+              >
+                <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-900 dark:text-white">
+                  Project Flight Game
+                </div>
+                <div
+                  class="text-[11px] font-mono text-rose-500 truncate max-w-[170px]"
+                >
+                  roblox.com/games/6349094071
+                </div>
+              </div>
+            </div>
+            <i
+              data-lucide="external-link"
+              class="w-4 h-4 text-slate-400 group-hover:text-rose-500 transition-colors"
+            ></i>
+          </a>
+
+          <!-- PFTracker Website -->
+          <a
+            href="https://tracker.project-flight.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-3.5 flex items-center justify-between hover:border-amber-500/50 hover:bg-amber-50/20 dark:hover:bg-amber-950/20 transition-all group shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 font-bold"
+              >
+                <i data-lucide="globe" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-900 dark:text-white">
+                  PFTracker Website
+                </div>
+                <div class="text-[11px] font-mono text-amber-500">
+                  tracker.project-flight.com
+                </div>
+              </div>
+            </div>
+            <i
+              data-lucide="external-link"
+              class="w-4 h-4 text-slate-400 group-hover:text-amber-500 transition-colors"
+            ></i>
+          </a>
+
+          <!-- PFScope Website -->
+          <a
+            href="https://scope.project-flight.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-3.5 flex items-center justify-between hover:border-cyan-500/50 hover:bg-cyan-50/20 dark:hover:bg-cyan-950/20 transition-all group shadow-sm"
+          >
+            <div class="flex items-center gap-3">
+              <div
+                class="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-500 font-bold"
+              >
+                <i data-lucide="crosshair" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-900 dark:text-white">
+                  PFScope Website
+                </div>
+                <div class="text-[11px] font-mono text-cyan-500">
+                  scope.project-flight.com
+                </div>
+              </div>
+            </div>
+            <i
+              data-lucide="external-link"
+              class="w-4 h-4 text-slate-400 group-hover:text-cyan-500 transition-colors"
+            ></i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ATCHELPER WORKSPACE VIEW (ATC SCRIPT GENERATOR) -->
+    <main
+      id="view-atc"
+      class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 hidden animate-fade-in"
+    >
+      <!-- LEFT PANEL: Flight Details Form -->
+      <section class="lg:col-span-4 flex flex-col gap-5">
+        <div
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-5 shadow-lg dark:shadow-slate-950/40 flex flex-col gap-4"
+        >
+          <div
+            class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3"
+          >
+            <h2
+              class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2"
+            >
+              <i
+                data-lucide="plane-takeoff"
+                class="w-4 h-4 theme-accent-text"
+              ></i>
+              <span data-i18n="config_title">Flight Plan Config</span>
+            </h2>
+            <button
+              onclick="resetInputs()"
+              class="text-xs text-slate-400 hover:text-rose-500 flex items-center gap-1 transition-colors"
+              title="Reset and clear all fields"
+            >
+              <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+              <span data-i18n="btn_clear">Clear All</span>
+            </button>
+          </div>
+
+          <!-- Flight Rules Selector (IFR / VFR) -->
+          <div
+            class="grid grid-cols-2 gap-2 p-1 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 text-xs"
+          >
+            <button
+              id="rule-ifr"
+              onclick="setFlightRule('IFR')"
+              class="py-1.5 font-bold rounded-lg theme-accent-text bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-center transition-all"
+            >
+              IFR (Instrument)
+            </button>
+            <button
+              id="rule-vfr"
+              onclick="setFlightRule('VFR')"
+              class="py-1.5 font-medium rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-center transition-all"
+            >
+              VFR (Visual)
+            </button>
+          </div>
+
+          <!-- Form Inputs -->
+          <div class="grid grid-cols-1 gap-3.5">
+            <!-- Callsign Field -->
+            <div>
+              <label
+                for="callsign"
+                class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
+              >
+                Callsign / Roblox Tag <span class="theme-accent-text">*</span>
+              </label>
+              <div class="relative">
+                <input
+                  type="text"
+                  id="callsign"
+                  value=""
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-sm font-mono theme-accent-text font-bold focus:border-sky-500 uppercase tracking-wide transition-colors"
+                  placeholder="e.g. AAL142, RobloxFlyer"
+                />
+                <span
+                  id="callsign-phonetic"
+                  class="text-[10px] text-slate-400 font-mono mt-1 block truncate"
+                  >Enter callsign...</span
+                >
+              </div>
+            </div>
+
+            <!-- Airport Trio Inputs with Searchable Dropdown Options -->
+            <div class="grid grid-cols-3 gap-2">
+              <!-- Departure Airport -->
+              <div>
+                <label
+                  for="dep-airport"
+                  class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                >
+                  Departure <span class="theme-accent-text">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="dep-airport"
+                  list="airport-list"
+                  value=""
+                  maxlength="4"
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-2 text-xs font-mono font-bold text-slate-900 dark:text-white focus:border-sky-500 uppercase text-center transition-colors"
+                  placeholder="ICAO"
+                />
+              </div>
+
+              <!-- Arrival Airport -->
+              <div>
+                <label
+                  for="arr-airport"
+                  class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                >
+                  Arrival <span class="theme-accent-text">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="arr-airport"
+                  list="airport-list"
+                  value=""
+                  maxlength="4"
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-2 text-xs font-mono font-bold text-slate-900 dark:text-white focus:border-sky-500 uppercase text-center transition-colors"
+                  placeholder="ICAO"
+                />
+              </div>
+
+              <!-- Alternate Airport -->
+              <div>
+                <label
+                  for="alt-airport"
+                  class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                >
+                  Alternate <span class="text-amber-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="alt-airport"
+                  list="airport-list"
+                  value=""
+                  maxlength="4"
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-amber-300 dark:border-amber-900/50 rounded-xl px-2 py-2 text-xs font-mono font-bold text-amber-600 dark:text-amber-400 focus:border-amber-500 uppercase text-center transition-colors"
+                  placeholder="ICAO"
+                />
+              </div>
+            </div>
+
+            <!-- Gates / Parking Positions -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label
+                  for="dep-gate"
+                  class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                  >Departure Gate/Ramp</label
+                >
+                <input
+                  type="text"
+                  id="dep-gate"
+                  value=""
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 dark:text-slate-200 focus:border-sky-500"
+                  placeholder="e.g. Gate B22"
+                />
+              </div>
+
+              <div>
+                <label
+                  for="arr-gate"
+                  class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                  >Arrival Gate/Stand</label
+                >
+                <input
+                  type="text"
+                  id="arr-gate"
+                  value=""
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 dark:text-slate-200 focus:border-sky-500"
+                  placeholder="e.g. Gate A5"
+                />
+              </div>
+            </div>
+
+            <!-- Aircraft Type & Cruise Altitude -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label
+                  for="aircraft-type"
+                  class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                  >Aircraft</label
+                >
+                <input
+                  type="text"
+                  id="aircraft-type"
+                  value=""
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 dark:text-slate-200 focus:border-sky-500 uppercase"
+                  placeholder="e.g. A320, B738"
+                />
+              </div>
+
+              <div>
+                <label
+                  for="cruise-alt"
+                  class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                  >Cruise Level</label
+                >
+                <input
+                  type="text"
+                  id="cruise-alt"
+                  value=""
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 dark:text-slate-200 focus:border-sky-500 uppercase"
+                  placeholder="FL280 / 4500"
+                />
+              </div>
+            </div>
+
+            <!-- Runways -->
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label
+                  for="dep-rwy"
+                  class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                  >Dep Runway</label
+                >
+                <input
+                  type="text"
+                  id="dep-rwy"
+                  value=""
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-2 text-xs font-mono text-center font-bold text-slate-900 dark:text-white focus:border-sky-500"
+                  placeholder="e.g. 26L"
+                />
+              </div>
+              <div>
+                <label
+                  for="arr-rwy"
+                  class="block text-[11px] font-semibold text-slate-700 dark:text-slate-300 mb-1"
+                  >Arr Runway</label
+                >
+                <input
+                  type="text"
+                  id="arr-rwy"
+                  value=""
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-2 py-2 text-xs font-mono text-center font-bold text-slate-900 dark:text-white focus:border-sky-500"
+                  placeholder="e.g. 12"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Import/Export Route Code Box -->
+          <div
+            class="mt-2 pt-3 border-t border-slate-100 dark:border-slate-800 space-y-2"
+          >
+            <label
+              class="block text-[11px] font-bold text-slate-700 dark:text-slate-300"
+            >
+              Route Preset Code (Share / Load)
+            </label>
+            <div class="flex gap-1.5">
+              <input
+                type="text"
+                id="route-code-input"
+                class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 text-xs font-mono text-slate-800 dark:text-slate-200"
+                placeholder="Paste PF- Code here..."
+              />
+              <button
+                onclick="loadRouteCode()"
+                class="px-2.5 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-xs font-bold rounded-lg transition-colors"
+              >
+                Load
+              </button>
+              <button
+                onclick="generateRouteCode()"
+                class="px-2.5 py-1.5 theme-accent-bg text-white text-xs font-bold rounded-lg transition-colors shrink-0"
+              >
+                Copy Code
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Roblox Tip Card -->
+        <div
+          class="theme-accent-subtle-bg border theme-accent-border dynamic-card p-4 text-xs text-slate-600 dark:text-slate-400 space-y-1.5"
+        >
+          <div class="flex items-center gap-2 theme-accent-text font-bold">
+            <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+            Project Flight Chat Tip
+          </div>
+          <p class="leading-relaxed text-[11px]">
+            Type your route details above. Click any
+            <strong>Copy</strong> button to grab a line. In Roblox, press
+            <kbd
+              class="px-1 py-0.5 bg-slate-200 dark:bg-slate-800 rounded font-mono text-[10px]"
+              >/ [slash]</kbd
+            >
+            to open chat, then
+            <kbd
+              class="px-1 py-0.5 bg-slate-200 dark:bg-slate-800 rounded font-mono text-[10px]"
+              >Ctrl + V</kbd
+            >
+            to paste!
+          </p>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL: Chat Script Output Cards -->
+      <section class="lg:col-span-8 flex flex-col gap-4">
+        <!-- View Controls & Filter Tabs -->
+        <div
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-3 flex flex-wrap items-center justify-between gap-3 shadow-sm"
+        >
+          <!-- Phase Tabs -->
+          <div
+            id="phase-tabs"
+            class="flex flex-wrap items-center gap-1 text-xs"
+          >
+            <button
+              onclick="filterPhase('all')"
+              data-phase="all"
+              class="phase-tab px-3 py-1.5 rounded-xl font-bold theme-accent-subtle-bg theme-accent-text border theme-accent-border transition-all"
+            >
+              All Calls
+            </button>
+            <button
+              onclick="filterPhase('clearance')"
+              data-phase="clearance"
+              class="phase-tab px-3 py-1.5 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+            >
+              Clearance
+            </button>
+            <button
+              onclick="filterPhase('ground')"
+              data-phase="ground"
+              class="phase-tab px-3 py-1.5 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+            >
+              Taxi & Push
+            </button>
+            <button
+              onclick="filterPhase('tower')"
+              data-phase="tower"
+              class="phase-tab px-3 py-1.5 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+            >
+              Tower
+            </button>
+            <button
+              onclick="filterPhase('radar')"
+              data-phase="radar"
+              class="phase-tab px-3 py-1.5 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+            >
+              Enroute
+            </button>
+            <button
+              onclick="filterPhase('emergency')"
+              data-phase="emergency"
+              class="phase-tab px-3 py-1.5 rounded-xl font-bold text-rose-500 hover:bg-rose-500/10 transition-all"
+            >
+              Emergencies
+            </button>
+            <button
+              onclick="filterPhase('alternate')"
+              data-phase="alternate"
+              class="phase-tab px-3 py-1.5 rounded-xl font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 transition-all"
+            >
+              Alternate
+            </button>
+          </div>
+
+          <!-- Copy All Button -->
+          <button
+            onclick="copyAllVisibleScripts()"
+            class="flex items-center gap-1.5 theme-accent-bg theme-accent-bg-hover text-white text-xs font-bold px-3.5 py-1.5 rounded-xl shadow-sm transition-all"
+          >
+            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            <span>Copy All Lines</span>
+          </button>
+        </div>
+
+        <!-- Script Output Container -->
+        <div id="script-cards-container" class="flex flex-col gap-4">
+          <!-- Javascript renders cards here -->
+        </div>
+      </section>
+    </main>
+
+    <!-- CHARTSHELPER PAGE VIEW -->
+    <main
+      id="view-charts"
+      class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6 hidden animate-fade-in"
+    >
+      <!-- LEFT PANEL: Airport Selector Grid -->
+      <section class="lg:col-span-4 flex flex-col gap-4">
+        <div
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-5 shadow-lg dark:shadow-slate-950/40 flex flex-col gap-4"
+        >
+          <div class="border-b border-slate-100 dark:border-slate-800 pb-3">
+            <h2
+              class="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2"
+            >
+              <i data-lucide="map-pin" class="w-4 h-4 text-amber-500"></i>
+              Project Flight Airports
+            </h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Select an airfield to view available diagrams & procedures.
+            </p>
+          </div>
+
+          <!-- Airport Search Input -->
+          <div>
+            <input
+              type="text"
+              id="chart-search"
+              oninput="filterChartAirports()"
+              placeholder="Search ICAO or Airport Name..."
+              class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 dark:text-white focus:border-amber-500"
+            />
+          </div>
+
+          <!-- Scrollable Airport List Buttons -->
+          <div
+            id="charts-airport-list"
+            class="flex flex-col gap-1.5 max-h-[550px] overflow-y-auto pr-1"
+          >
+            <!-- Rendered dynamically via JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANEL: Chart Viewer & Category Selector -->
+      <section class="lg:col-span-8 flex flex-col gap-4">
+        <!-- Chart Controls Header -->
+        <div
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-4 flex flex-wrap items-center justify-between gap-3 shadow-sm"
+        >
+          <div>
+            <h2
+              id="active-chart-airport-title"
+              class="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2"
+            >
+              <span
+                class="font-mono text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20"
+                >EGKK</span
+              >
+              <span>London Gatwick Airport</span>
+            </h2>
+          </div>
+
+          <!-- Chart Category Switcher -->
+          <div
+            id="chart-type-tabs"
+            class="flex flex-wrap items-center gap-1 text-xs"
+          >
+            <button
+              onclick="selectChartType('taxi')"
+              data-charttype="taxi"
+              class="chart-type-tab px-3 py-1.5 rounded-xl font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20"
+            >
+              Taxi / Airport Diagram
+            </button>
+            <button
+              onclick="selectChartType('sid')"
+              data-charttype="sid"
+              class="chart-type-tab px-3 py-1.5 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              SID Departure
+            </button>
+            <button
+              onclick="selectChartType('star')"
+              data-charttype="star"
+              class="chart-type-tab px-3 py-1.5 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              STAR Arrival
+            </button>
+            <button
+              onclick="selectChartType('ils')"
+              data-charttype="ils"
+              class="chart-type-tab px-3 py-1.5 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              ILS / Approach
+            </button>
+          </div>
+        </div>
+
+        <!-- Chart Display Window -->
+        <div
+          id="chart-display-card"
+          class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-6 shadow-xl flex flex-col items-center justify-center min-h-[480px] relative overflow-hidden"
+        >
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </section>
+    </main>
+
+    <!-- FEEDBACK PAGE VIEW -->
+    <main
+      id="view-feedback"
+      class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col items-center hidden animate-fade-in"
+    >
+      <div
+        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-6 sm:p-8 shadow-xl w-full space-y-6"
+      >
+        <div
+          class="border-b border-slate-100 dark:border-slate-800 pb-4 space-y-1"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500"
+            >
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </div>
+            <h2
+              class="text-xl font-bold text-slate-900 dark:text-white"
+              data-i18n="feedback_title"
+            >
+              Send Feedback & Feature Requests
+            </h2>
+          </div>
+          <p
+            class="text-xs text-slate-500 dark:text-slate-400"
+            data-i18n="feedback_sub"
+          >
+            Have an airport chart to submit? Found a bug or want a custom call
+            added? Fill out the form below!
+          </p>
+        </div>
+
+        <form
+          onsubmit="submitFeedbackToDiscord(event)"
+          class="space-y-4 text-xs"
+        >
+          <!-- Feedback Category -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                for="fb-category"
+                class="block font-bold text-slate-700 dark:text-slate-300 mb-1"
+                >Feedback Type <span class="text-indigo-500">*</span></label
+              >
+              <select
+                id="fb-category"
+                onchange="toggleChartUploadSection()"
+                required
+                class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-indigo-500"
+              >
+                <option value="Missing Airport Chart Submission">
+                  Missing Airport Chart Submission
+                </option>
+                <option value="Feature Request">Feature Request</option>
+                <option value="Bug / Error Report">Bug / Error Report</option>
+                <option value="ATC Line Suggestion">ATC Line Suggestion</option>
+                <option value="General Feedback">General Feedback</option>
+              </select>
+            </div>
+
+            <!-- Callsign / Roblox Username -->
+            <div>
+              <label
+                for="fb-username"
+                class="block font-bold text-slate-700 dark:text-slate-300 mb-1"
+                >Your Roblox Username / Callsign</label
+              >
+              <input
+                type="text"
+                id="fb-username"
+                placeholder="e.g. CaptainRoblox / AAL142"
+                class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <!-- CONDITIONAL CHART IMAGE UPLOAD / DROPZONE (ONLY SHOWS FOR CHART SUBMISSIONS) -->
+          <div id="chart-upload-section" class="space-y-2">
+            <label class="block font-bold text-slate-700 dark:text-slate-300">
+              Submit Airport Chart Image (Drop File, Paste, or Paste URL)
+            </label>
+
+            <!-- Drag and Drop Box -->
+            <div
+              id="drop-zone"
+              ondragover="handleDragOver(event)"
+              ondragleave="handleDragLeave(event)"
+              ondrop="handleFileDrop(event)"
+              class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-500 dark:hover:border-indigo-500 rounded-2xl p-6 text-center bg-slate-50 dark:bg-slate-950 transition-all cursor-pointer relative"
+            >
+              <input
+                type="file"
+                id="file-input"
+                accept="image/*"
+                onchange="handleFileSelect(event)"
+                class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              <div class="space-y-2 pointer-events-none" id="drop-zone-prompt">
+                <i
+                  data-lucide="upload-cloud"
+                  class="w-8 h-8 text-indigo-500 mx-auto"
+                ></i>
+                <div
+                  class="text-xs font-bold text-slate-800 dark:text-slate-200"
+                >
+                  Drag & drop chart image here, or
+                  <span class="text-indigo-500 underline">browse file</span>
+                </div>
+                <p class="text-[10px] text-slate-400">
+                  Supports PNG, JPG, WEBP, or paste image with Ctrl+V
+                </p>
+              </div>
+
+              <!-- Preview Box if File Attached -->
+              <div
+                id="drop-zone-preview"
+                class="hidden flex flex-col items-center gap-2"
+              >
+                <img
+                  id="chart-preview-img"
+                  src=""
+                  alt="Chart Preview"
+                  class="max-h-40 rounded-lg shadow border border-slate-200 dark:border-slate-800"
+                />
+                <button
+                  type="button"
+                  onclick="removeAttachedChart(event)"
+                  class="text-[11px] text-rose-500 hover:underline font-bold"
+                >
+                  Remove Attached Image
+                </button>
+              </div>
+            </div>
+
+            <!-- Or Image URL Field -->
+            <div class="pt-1">
+              <span
+                class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1"
+                >or paste direct image link:</span
+              >
+              <input
+                type="url"
+                id="fb-imageurl"
+                placeholder="https://i.imgur.com/... or Discord image link"
+                class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:border-indigo-500"
+              />
+            </div>
+          </div>
+
+          <!-- Feedback Message -->
+          <div>
+            <label
+              for="fb-message"
+              class="block font-bold text-slate-700 dark:text-slate-300 mb-1"
+              >Detailed Message / Request
+              <span class="text-indigo-500">*</span></label
+            >
+            <textarea
+              id="fb-message"
+              rows="4"
+              required
+              placeholder="Describe what chart you want added, feature requests, or bugs..."
+              class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:border-indigo-500"
+            ></textarea>
+          </div>
+
+          <!-- Submit Button -->
+          <div class="pt-2 text-right">
+            <button
+              type="submit"
+              id="fb-submit-btn"
+              class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 ml-auto"
+            >
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              <span>Send Feedback</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <!-- Modal 1: Template Editor -->
+    <div
+      id="customize-modal"
+      class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+      >
+        <div
+          class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950"
+        >
+          <div class="flex items-center gap-2">
+            <i data-lucide="sliders" class="w-5 h-5 theme-accent-text"></i>
+            <h2 class="text-base font-bold text-slate-900 dark:text-white">
+              Customize ATC Templates
+            </h2>
+          </div>
+          <button
+            onclick="closeCustomizeModal()"
+            class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto space-y-6 text-sm">
+          <p class="text-xs text-slate-500 dark:text-slate-400">
+            Edit default templates to fit your Roblox group's radio style.
+            Dynamic variables: <code>{CALLSIGN}</code>, <code>{DEP}</code>,
+            <code>{ARR}</code>, <code>{ALT}</code>, <code>{DEP_GATE}</code>,
+            <code>{ARR_GATE}</code>, <code>{ALTITUDE}</code>,
+            <code>{RUNWAY_DEP}</code>, <code>{RUNWAY_ARR}</code>.
+          </p>
+
+          <div id="template-editors" class="space-y-4">
+            <!-- Populated by JavaScript -->
+          </div>
+        </div>
+
+        <div
+          class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-between"
+        >
+          <button
+            onclick="restoreDefaultTemplates()"
+            class="text-xs text-slate-400 hover:text-rose-500 transition-colors"
+          >
+            Reset to Defaults
+          </button>
+          <div class="flex gap-2">
+            <button
+              onclick="closeCustomizeModal()"
+              class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onclick="saveCustomTemplates()"
+              class="px-4 py-2 theme-accent-bg text-white text-xs font-bold rounded-xl shadow transition-colors"
+            >
+              Save Templates
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: SETTINGS & ACCESSIBLE APPEARANCE CUSTOMIZER -->
+    <div
+      id="appearance-modal"
+      class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-fade-in"
+      >
+        <div
+          class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950"
+        >
+          <div class="flex items-center gap-2">
+            <i data-lucide="settings-2" class="w-5 h-5 theme-accent-text"></i>
+            <h2
+              class="text-base font-bold text-slate-900 dark:text-white"
+              data-i18n="settings_title"
+            >
+              Settings & Appearance
+            </h2>
+          </div>
+          <button
+            onclick="closeAppearanceModal()"
+            class="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded-lg"
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div class="p-6 space-y-6 text-xs overflow-y-auto">
+          <!-- Language Selector -->
+          <div class="space-y-2">
+            <label
+              for="lang-select"
+              class="block font-bold text-slate-700 dark:text-slate-300"
+            >
+              Interface Language
+            </label>
+            <select
+              id="lang-select"
+              onchange="changeLanguage(this.value)"
+              class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 dark:text-white focus:border-sky-500"
+            >
+              <option value="en">English (Default)</option>
+              <option value="es">Español (Spanish)</option>
+              <option value="fr">Français (French)</option>
+              <option value="de">Deutsch (German)</option>
+              <option value="pt">Português (Portuguese)</option>
+              <option value="ru">Русский (Russian)</option>
+              <option value="ja">日本語 (Japanese)</option>
+            </select>
+          </div>
+
+          <!-- Theme Accent Color Palette Presets -->
+          <div class="space-y-2">
+            <label class="block font-bold text-slate-700 dark:text-slate-300"
+              >Accent Theme Color Presets</label
+            >
+            <div class="grid grid-cols-4 sm:grid-cols-8 gap-2">
+              <button
+                onclick="applyThemeColor('sky')"
+                class="h-8 rounded-xl bg-sky-500 ring-2 ring-offset-2 ring-transparent hover:scale-105 transition-transform"
+                title="Sky Blue"
+              ></button>
+              <button
+                onclick="applyThemeColor('emerald')"
+                class="h-8 rounded-xl bg-emerald-500 ring-2 ring-offset-2 ring-transparent hover:scale-105 transition-transform"
+                title="Emerald Green"
+              ></button>
+              <button
+                onclick="applyThemeColor('indigo')"
+                class="h-8 rounded-xl bg-indigo-500 ring-2 ring-offset-2 ring-transparent hover:scale-105 transition-transform"
+                title="Indigo Purple"
+              ></button>
+              <button
+                onclick="applyThemeColor('amber')"
+                class="h-8 rounded-xl bg-amber-500 ring-2 ring-offset-2 ring-transparent hover:scale-105 transition-transform"
+                title="Amber Orange"
+              ></button>
+              <button
+                onclick="applyThemeColor('rose')"
+                class="h-8 rounded-xl bg-rose-500 ring-2 ring-offset-2 ring-transparent hover:scale-105 transition-transform"
+                title="Rose Pink"
+              ></button>
+              <button
+                onclick="applyThemeColor('purple')"
+                class="h-8 rounded-xl bg-purple-600 ring-2 ring-offset-2 ring-transparent hover:scale-105 transition-transform"
+                title="Deep Purple"
+              ></button>
+              <button
+                onclick="applyThemeColor('cyan')"
+                class="h-8 rounded-xl bg-cyan-400 ring-2 ring-offset-2 ring-transparent hover:scale-105 transition-transform"
+                title="Cyan"
+              ></button>
+              <button
+                onclick="applyThemeColor('lime')"
+                class="h-8 rounded-xl bg-lime-500 ring-2 ring-offset-2 ring-transparent hover:scale-105 transition-transform"
+                title="Lime Green"
+              ></button>
+            </div>
+
+            <!-- REDESIGNED ACCESSIBLE COLOR WHEEL (HUE SPECTRUM SLIDER + PREVIEW BOX) -->
+            <div
+              class="pt-3 bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3"
+            >
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div
+                    id="custom-wheel-preview"
+                    class="w-6 h-6 rounded-lg theme-accent-bg border border-slate-300 dark:border-slate-700 shadow-sm"
+                  ></div>
+                  <span class="font-bold text-slate-800 dark:text-slate-200"
+                    >Custom Color Wheel Spectrum</span
+                  >
+                </div>
+                <span
+                  id="custom-hex-label"
+                  class="font-mono text-[11px] font-bold theme-accent-text"
+                  >#0284c7</span
+                >
+              </div>
+
+              <!-- Hue Spectrum Bar Input -->
+              <input
+                type="range"
+                min="0"
+                max="360"
+                value="200"
+                id="hue-spectrum-bar"
+                oninput="handleHueSliderChange(this.value)"
+                class="w-full hue-slider cursor-pointer"
+                aria-label="Custom Color Spectrum Wheel"
+              />
+
+              <!-- Hex Direct Input -->
+              <div class="flex items-center gap-2 pt-1">
+                <span
+                  class="text-[10px] text-slate-400 font-bold uppercase tracking-wider"
+                  >Hex Code:</span
+                >
+                <input
+                  type="text"
+                  id="custom-hex-input"
+                  value="#0284c7"
+                  maxlength="7"
+                  onchange="applyCustomHexColor(this.value)"
+                  class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-slate-800 dark:text-slate-200 w-24"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- DRASTIC FONT SIZE ACCESSIBILITY (DISTINCT DIFFERENCE BETWEEN SIZES) -->
+          <div class="space-y-2">
+            <label class="block font-bold text-slate-700 dark:text-slate-300"
+              >Text Size / Font Scaling (Drastic Change)</label
+            >
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                onclick="applyTextScale('0.825rem')"
+                class="py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-800 dark:text-slate-200 font-bold text-center border border-slate-200 dark:border-slate-700 hover:border-sky-500"
+              >
+                <span class="text-xs block">Compact</span>
+                <span class="text-[10px] text-slate-400 font-normal"
+                  >82.5%</span
+                >
+              </button>
+              <button
+                onclick="applyTextScale('1rem')"
+                class="py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-800 dark:text-slate-200 font-bold text-center border border-slate-200 dark:border-slate-700 hover:border-sky-500"
+              >
+                <span class="text-sm block">Default</span>
+                <span class="text-[10px] text-slate-400 font-normal"
+                  >100% Normal</span
+                >
+              </button>
+              <button
+                onclick="applyTextScale('1.25rem')"
+                class="py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-800 dark:text-slate-200 font-bold text-center border border-slate-200 dark:border-slate-700 hover:border-sky-500"
+              >
+                <span class="text-base block">Large</span>
+                <span class="text-[10px] text-slate-400 font-normal"
+                  >125% Accessible</span
+                >
+              </button>
+            </div>
+          </div>
+
+          <!-- Card Corner Radius -->
+          <div class="space-y-2">
+            <label class="block font-bold text-slate-700 dark:text-slate-300"
+              >Card Style Corner Radius</label
+            >
+            <div class="grid grid-cols-3 gap-2">
+              <button
+                onclick="applyBorderRadius('0.5rem')"
+                class="py-2 bg-slate-100 dark:bg-slate-800 rounded-lg text-slate-800 dark:text-slate-200 font-semibold text-center border border-slate-200 dark:border-slate-700"
+              >
+                Sharp
+              </button>
+              <button
+                onclick="applyBorderRadius('1rem')"
+                class="py-2 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-800 dark:text-slate-200 font-semibold text-center border border-slate-200 dark:border-slate-700"
+              >
+                Modern
+              </button>
+              <button
+                onclick="applyBorderRadius('1.5rem')"
+                class="py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-800 dark:text-slate-200 font-semibold text-center border border-slate-200 dark:border-slate-700"
+              >
+                Rounded
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-right"
+        >
+          <button
+            onclick="closeAppearanceModal()"
+            class="px-5 py-2 theme-accent-bg text-white font-bold rounded-xl shadow"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer
+      class="mt-auto border-t border-slate-200 dark:border-slate-800/80 bg-white/50 dark:bg-slate-950/40 py-4"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500 dark:text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-2"
+      >
+        <div class="flex items-center gap-2">
+          <span
+            class="w-2 h-2 rounded-full theme-accent-bg animate-pulse"
+          ></span>
+          <span>PFHelper &bull; Project Flight Roblox Toolset</span>
+        </div>
+        <div>Pilot & ATC Assistant</div>
+      </div>
+    </footer>
+
+    <!-- Application Logic JS -->
+    <script>
+      // DISCORD WEBHOOK CONFIGURATION
+      const DISCORD_WEBHOOK_URL = "";
+
+      // Translation Dictionary
+      const translations = {
+        en: {
+          tagline: "Roblox Aviation Suite",
+          nav_hub: "PFHelper Hub",
+          nav_feedback: "Feedback",
+          btn_settings: "Settings",
+          hub_badge: "Project Flight Roblox Hub",
+          hub_welcome: "Welcome to",
+          hub_desc:
+            "Your ultimate flight deck companion for Project Flight on Roblox. Select an aviation tool or explore community resources below.",
+          atc_tool_desc:
+            "Generate instant, copy-pasteable ATC radio chat lines for all flight phases, emergencies, and alternate airport diversions.",
+          charts_tool_desc:
+            "Access airport diagrams, runway layouts, gate numbers, and taxiway maps for all in-game Project Flight airports.",
+          feedback_hub: "Feedback Hub",
+          feedback_tool_desc:
+            "Send suggestions, request missing airport charts, report bugs, or request features directly to the developers.",
+          launch_tool: "Launch Generator",
+          browse_charts: "Browse Charts",
+          submit_request: "Submit Request",
+          status_now: "AVAILABLE NOW",
+          status_interactive: "INTERACTIVE",
+          ecosystem_title: "Project Flight Community & Ecosystem Links",
+          ecosystem_sub:
+            "Quick access to official Discords, tracking tools, and game links.",
+          config_title: "Flight Plan Config",
+          btn_clear: "Clear All",
+          feedback_title: "Send Feedback & Feature Requests",
+          feedback_sub:
+            "Have an airport chart to submit? Found a bug or want a custom call added? Fill out the form below!",
+          settings_title: "Settings & Appearance",
+        },
+        es: {
+          tagline: "Suite de Aviación de Roblox",
+          nav_hub: "Inicio PFHelper",
+          nav_feedback: "Comentarios",
+          btn_settings: "Ajustes",
+          hub_badge: "Centro Project Flight Roblox",
+          hub_welcome: "Bienvenido a",
+          hub_desc:
+            "Tu compañero de cabina definitivo para Project Flight en Roblox. Selecciona una herramienta de aviación abajo.",
+          atc_tool_desc:
+            "Genera líneas de chat ATC instantáneas para todas las fases de vuelo y emergencias.",
+          charts_tool_desc:
+            "Accede a diagramas de aeropuertos, pistas y números de puerta.",
+          feedback_hub: "Centro de Comentarios",
+          feedback_tool_desc:
+            "Envía sugerencias, solicita cartas de aeropuertos faltantes o reporta errores.",
+          launch_tool: "Abrir Generador",
+          browse_charts: "Ver Cartas",
+          submit_request: "Enviar Solicitud",
+          status_now: "DISPONIBLE",
+          status_interactive: "INTERACTIVO",
+          ecosystem_title: "Comunidad y Enlaces de Project Flight",
+          ecosystem_sub: "Acceso rápido a Discords oficiales y herramientas.",
+          config_title: "Configuración de Vuelo",
+          btn_clear: "Borrar Todo",
+          feedback_title: "Enviar Comentarios y Solicitudes",
+          feedback_sub:
+            "¿Tienes una carta de aeropuerto? ¡Rellena el formulario abajo!",
+          settings_title: "Ajustes y Apariencia",
+        },
+        fr: {
+          tagline: "Suite d'Aviation Roblox",
+          nav_hub: "Accueil PFHelper",
+          nav_feedback: "Avis",
+          btn_settings: "Paramètres",
+          hub_badge: "Hub Roblox Project Flight",
+          hub_welcome: "Bienvenue sur",
+          hub_desc:
+            "Votre compagnon de cockpit ultime pour Project Flight sur Roblox.",
+          atc_tool_desc:
+            "Générez des lignes de dialogue radio ATC instantanées et copiables.",
+          charts_tool_desc:
+            "Accédez aux cartes d'aéroports, voies de circulation et portes.",
+          feedback_hub: "Hub d'Avis",
+          feedback_tool_desc:
+            "Envoyez vos suggestions, demandez des cartes manquantes ou signalez des bugs.",
+          launch_tool: "Lancer le Générateur",
+          browse_charts: "Consulter les Cartes",
+          submit_request: "Soumettre",
+          status_now: "DISPONIBLE",
+          status_interactive: "INTERACTIF",
+          ecosystem_title: "Liens Communautaires Project Flight",
+          ecosystem_sub:
+            "Accès rapide aux Discords officiels et outils de suivi.",
+          config_title: "Configuration du Vol",
+          btn_clear: "Effacer Tout",
+          feedback_title: "Envoyer un Avis",
+          feedback_sub:
+            "Une carte manquante ? Remplissez le formulaire ci-dessous !",
+          settings_title: "Paramètres & Apparence",
+        },
+        de: {
+          tagline: "Roblox Luftfahrt-Suite",
+          nav_hub: "PFHelper Zentrale",
+          nav_feedback: "Feedback",
+          btn_settings: "Einstellungen",
+          hub_badge: "Project Flight Roblox Zentrale",
+          hub_welcome: "Willkommen bei",
+          hub_desc:
+            "Dein ultimativer Cockpit-Begleiter für Project Flight auf Roblox.",
+          atc_tool_desc:
+            "Generiere sofort kopierbare ATC-Frequenztexte für alle Flugphasen.",
+          charts_tool_desc:
+            "Greife auf Flughafenkarten, Landebahnen und Gate-Nummern zu.",
+          feedback_hub: "Feedback-Zentrale",
+          feedback_tool_desc:
+            "Sende Vorschläge, fordere fehlende Karten an oder melde Fehler.",
+          launch_tool: "Generator Starten",
+          browse_charts: "Karten Durchsuchen",
+          submit_request: "Anfrage Senden",
+          status_now: "JETZT VERFÜGBAR",
+          status_interactive: "INTERAKTIV",
+          ecosystem_title: "Project Flight Community-Links",
+          ecosystem_sub: "Schneller Zugriff auf offizielle Discords und Tools.",
+          config_title: "Flugplan-Konfiguration",
+          btn_clear: "Alles Löschen",
+          feedback_title: "Feedback Senden",
+          feedback_sub: "Fehlt eine Karte? Fülle einfach das Formular aus!",
+          settings_title: "Einstellungen & Aussehen",
+        },
+        pt: {
+          tagline: "Suíte de Aviação Roblox",
+          nav_hub: "Início PFHelper",
+          nav_feedback: "Feedback",
+          btn_settings: "Ajustes",
+          hub_badge: "Hub Roblox Project Flight",
+          hub_welcome: "Bem-vindo ao",
+          hub_desc:
+            "Seu assistente de cabine definitivo para o Project Flight no Roblox.",
+          atc_tool_desc:
+            "Gere mensagens de rádio ATC instantâneas e copiáveis.",
+          charts_tool_desc:
+            "Acesse cartas de aeroportos, pistas e números de portões.",
+          feedback_hub: "Central de Feedback",
+          feedback_tool_desc:
+            "Envie sugestões, peça cartas ausentes ou reporte erros.",
+          launch_tool: "Abrir Gerador",
+          browse_charts: "Ver Cartas",
+          submit_request: "Enviar Pedido",
+          status_now: "DISPONÍVEL",
+          status_interactive: "INTERATIVO",
+          ecosystem_title: "Links da Comunidade Project Flight",
+          ecosystem_sub: "Acesso rápido aos Discords oficiais e rastreadores.",
+          config_title: "Configuração do Plano de Voo",
+          btn_clear: "Limpar Tudo",
+          feedback_title: "Enviar Feedback",
+          feedback_sub:
+            "Tem uma carta de aeroporto? Preencha o formulário abaixo!",
+          settings_title: "Ajustes e Aparência",
+        },
+        ru: {
+          tagline: "Авиационный Набор Roblox",
+          nav_hub: "Главная PFHelper",
+          nav_feedback: "Отзывы",
+          btn_settings: "Настройки",
+          hub_badge: "Хаб Project Flight Roblox",
+          hub_welcome: "Добро пожаловать в",
+          hub_desc:
+            "Ваш незаменимый помощник пилота для Project Flight в Roblox.",
+          atc_tool_desc: "Мгновенная генерация команд ATC для отправки в чат.",
+          charts_tool_desc: "Схемы аэропортов, взлетных полос и стоянок.",
+          feedback_hub: "Центр Отзывов",
+          feedback_tool_desc:
+            "Отправляйте предложения, запросы схем и отчеты об ошибках.",
+          launch_tool: "Запустить Генератор",
+          browse_charts: "Просмотр Схем",
+          submit_request: "Отправить Запрос",
+          status_now: "ДОСТУПНО",
+          status_interactive: "ИНТЕРАКТИВНО",
+          ecosystem_title: "Ссылки Сообщества Project Flight",
+          ecosystem_sub: "Быстрый доступ к Discord и трекерам.",
+          config_title: "Конфигурация Полета",
+          btn_clear: "Очистить Все",
+          feedback_title: "Отправить Отзыв",
+          feedback_sub: "Хотите добавить схему? Заполните форму ниже!",
+          settings_title: "Настройки и Внешний Вид",
+        },
+        ja: {
+          tagline: "Roblox 航空スイート",
+          nav_hub: "ハブ",
+          nav_feedback: "フィードバック",
+          btn_settings: "設定",
+          hub_badge: "Project Flight Roblox ハブ",
+          hub_welcome: "ようこそ",
+          hub_desc: "RobloxのProject Flight用コックピットアシスタント。",
+          atc_tool_desc:
+            "すべての飛行フェーズ用ATC無線チャット行を即座に生成。",
+          charts_tool_desc:
+            "空港図面、滑走路レイアウト、スポット番号にアクセス。",
+          feedback_hub: "フィードバックハブ",
+          feedback_tool_desc:
+            "提案、チャートの追加リクエスト、バグ報告を送信。",
+          launch_tool: "ジェネレーター起動",
+          browse_charts: "チャート閲覧",
+          submit_request: "リクエスト送信",
+          status_now: "利用可能",
+          status_interactive: "インタラクティブ",
+          ecosystem_title: "Project Flight コミュニティリンク",
+          ecosystem_sub: "公式Discordおよび追跡ツールへのクイックアクセス。",
+          config_title: "飛行計画設定",
+          btn_clear: "すべてクリア",
+          feedback_title: "フィードバック送信",
+          feedback_sub:
+            "チャートを提出しますか？以下のフォームに入力してください！",
+          settings_title: "設定と外観",
+        },
+      };
+
+      let currentLang = "en";
+
+      function changeLanguage(langKey) {
+        if (!translations[langKey]) return;
+        currentLang = langKey;
+
+        document.querySelectorAll("[data-i18n]").forEach((el) => {
+          const key = el.getAttribute("data-i18n");
+          if (translations[langKey][key]) {
+            el.textContent = translations[langKey][key];
+          }
+        });
+
+        showToast(`Language changed to ${langKey.toUpperCase()}`);
+      }
+
+      // Project Flight Airport Master Database
+      const airportDatabase = [
+        {
+          icao: "LCLK",
+          name: "Larnaca International Airport",
+          region: "Cyprus",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "LCPH",
+          name: "Paphos International Airport",
+          region: "Cyprus",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "LCRA",
+          name: "Akrotiri RAF Base",
+          region: "Cyprus",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "MDAB",
+          name: "Arroyo Barril Airport",
+          region: "Dominican Republic",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "MDCR",
+          name: "Cabo Rojo Airport",
+          region: "Dominican Republic",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "MDST",
+          name: "Cibao International Airport",
+          region: "Dominican Republic",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "MDPC",
+          name: "Punta Cana International Airport",
+          region: "Dominican Republic",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "MTCA",
+          name: "Antoine Simon Airport",
+          region: "Haiti",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "LPMA",
+          name: "Madeira Airport",
+          region: "Portugal",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "EGKK",
+          name: "London Gatwick Airport",
+          region: "United Kingdom",
+          charts: {
+            taxi: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=1200&q=80",
+            sid: "",
+            star: "",
+            ils: "",
+          },
+        },
+        {
+          icao: "EGLC",
+          name: "London City Airport",
+          region: "United Kingdom",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "EGFF",
+          name: "Cardiff Airport",
+          region: "Wales, UK",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "EGHJ",
+          name: "Bembridge Airport",
+          region: "Isle of Wight",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "EGHC",
+          name: "Land's End Airport",
+          region: "United Kingdom",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "EGCK",
+          name: "Caernarfon Airport",
+          region: "Wales, UK",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "X2BH",
+          name: "Bolt Head Airfield",
+          region: "United Kingdom",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+        {
+          icao: "PAFA",
+          name: "Fairbanks International Airport",
+          region: "Alaska, USA",
+          charts: { taxi: "", sid: "", star: "", ils: "" },
+        },
+      ];
+
+      // Global State
+      let currentFlightRule = "IFR";
+      let activePhaseFilter = "all";
+      let selectedChartAirport = "EGKK";
+      let selectedChartType = "taxi";
+      let attachedChartBase64 = null;
+
+      // NATO Phonetics dictionary
+      const natoAlphabet = {
+        A: "Alpha",
+        B: "Bravo",
+        C: "Charlie",
+        D: "Delta",
+        E: "Echo",
+        F: "Foxtrot",
+        G: "Golf",
+        H: "Hotel",
+        I: "India",
+        J: "Juliett",
+        K: "Kilo",
+        L: "Lima",
+        M: "Mike",
+        N: "November",
+        O: "Oscar",
+        P: "Papa",
+        Q: "Quebec",
+        R: "Romeo",
+        S: "Sierra",
+        T: "Tango",
+        U: "Uniform",
+        V: "Victor",
+        W: "Whiskey",
+        X: "X-ray",
+        Y: "Yankee",
+        Z: "Zulu",
+        0: "Zero",
+        1: "One",
+        2: "Two",
+        3: "Three",
+        4: "Four",
+        5: "Five",
+        6: "Six",
+        7: "Seven",
+        8: "Eight",
+        9: "Niner",
+      };
+
+      // Default Templates
+      const defaultTemplates = [
+        {
+          id: "clearance_request",
+          phase: "clearance",
+          title: "1. Delivery Clearance",
+          facility: "{DEP} Delivery",
+          pilotRequest:
+            "{DEP} Delivery, {CALLSIGN}, {AIRCRAFT_TYPE} at {DEP_GATE}, request {RULE} clearance to {ARR}.",
+          atcExpectation: "{CALLSIGN}, cleared to {ARR}, climb {ALTITUDE}.",
+          pilotReadback: "Cleared to {ARR}, climb {ALTITUDE}, {CALLSIGN}.",
+        },
+        {
+          id: "pushback",
+          phase: "ground",
+          title: "2. Pushback & Start",
+          facility: "{DEP} Ground",
+          pilotRequest:
+            "{DEP} Ground, {CALLSIGN} at {DEP_GATE}, request push and start.",
+          atcExpectation: "{CALLSIGN}, push and start approved, face East.",
+          pilotReadback: "Push and start approved, facing East, {CALLSIGN}.",
+        },
+        {
+          id: "taxi_out",
+          phase: "ground",
+          title: "3. Taxi to Runway",
+          facility: "{DEP} Ground",
+          pilotRequest: "{DEP} Ground, {CALLSIGN}, ready for taxi.",
+          atcExpectation:
+            "{CALLSIGN}, taxi to runway {RUNWAY_DEP} via Alpha, hold short runway {RUNWAY_DEP}.",
+          pilotReadback:
+            "Taxi to runway {RUNWAY_DEP} via Alpha, hold short runway {RUNWAY_DEP}, {CALLSIGN}.",
+        },
+        {
+          id: "takeoff",
+          phase: "tower",
+          title: "4. Takeoff Clearance",
+          facility: "{DEP} Tower",
+          pilotRequest:
+            "{DEP} Tower, {CALLSIGN}, holding short runway {RUNWAY_DEP}, ready for takeoff.",
+          atcExpectation:
+            "{CALLSIGN}, runway {RUNWAY_DEP}, cleared for takeoff!",
+          pilotReadback:
+            "Cleared for takeoff, runway {RUNWAY_DEP}, {CALLSIGN}.",
+        },
+        {
+          id: "departure_radar",
+          phase: "radar",
+          title: "5. Departure / Radar Contact",
+          facility: "{DEP} Departure",
+          pilotRequest: "{DEP} Departure, {CALLSIGN}, climbing to {ALTITUDE}.",
+          atcExpectation:
+            "{CALLSIGN}, radar contact, climb and maintain {ALTITUDE}.",
+          pilotReadback: "Climb and maintain {ALTITUDE}, {CALLSIGN}.",
+        },
+        {
+          id: "enroute_handoff",
+          phase: "radar",
+          title: "6. Center Cruise Check-in",
+          facility: "Center ATC",
+          pilotRequest: "Center, {CALLSIGN}, level at {ALTITUDE}.",
+          atcExpectation: "{CALLSIGN}, Center, roger, altimeter 29.92.",
+          pilotReadback: "Altimeter 29.92, {CALLSIGN}.",
+        },
+        {
+          id: "approach_checkin",
+          phase: "radar",
+          title: "7. Approach & Descent",
+          facility: "{ARR} Approach",
+          pilotRequest:
+            "{ARR} Approach, {CALLSIGN}, descending for runway {RUNWAY_ARR}.",
+          atcExpectation:
+            "{CALLSIGN}, expect approach runway {RUNWAY_ARR}, descend and maintain 3000.",
+          pilotReadback:
+            "Expect runway {RUNWAY_ARR}, descending to 3000, {CALLSIGN}.",
+        },
+        {
+          id: "landing_clearance",
+          phase: "tower",
+          title: "8. Tower Landing Clearance",
+          facility: "{ARR} Tower",
+          pilotRequest:
+            "{ARR} Tower, {CALLSIGN}, on final runway {RUNWAY_ARR}.",
+          atcExpectation: "{CALLSIGN}, runway {RUNWAY_ARR}, cleared to land!",
+          pilotReadback: "Cleared to land runway {RUNWAY_ARR}, {CALLSIGN}.",
+        },
+        {
+          id: "taxi_in",
+          phase: "ground",
+          title: "9. Taxi to Gate",
+          facility: "{ARR} Ground",
+          pilotRequest:
+            "{ARR} Ground, {CALLSIGN}, clear of runway {RUNWAY_ARR}, taxi to {ARR_GATE}.",
+          atcExpectation: "{CALLSIGN}, taxi to {ARR_GATE} via Bravo.",
+          pilotReadback: "Taxiing to {ARR_GATE} via Bravo, {CALLSIGN}.",
+        },
+        {
+          id: "mayday_engine",
+          phase: "emergency",
+          title: "10. MAYDAY - Engine Failure Emergency",
+          facility: "Approach / Tower / Center",
+          pilotRequest:
+            "MAYDAY MAYDAY MAYDAY, {CALLSIGN}, engine failure! Requesting immediate landing at nearest airfield.",
+          atcExpectation:
+            "{CALLSIGN}, roger MAYDAY, cleared to land any runway, emergency services notified.",
+          pilotReadback: "Cleared to land immediately, {CALLSIGN}.",
+        },
+        {
+          id: "panpan_medical",
+          phase: "emergency",
+          title: "11. PAN-PAN - Medical Priority Call",
+          facility: "Center / Approach",
+          pilotRequest:
+            "PAN-PAN, PAN-PAN, PAN-PAN, {CALLSIGN}, medical emergency onboard, requesting priority handling to {ARR}.",
+          atcExpectation:
+            "{CALLSIGN}, roger priority handling granted, proceed direct to {ARR}.",
+          pilotReadback: "Direct to {ARR} with priority, {CALLSIGN}.",
+        },
+        {
+          id: "go_around",
+          phase: "emergency",
+          title: "12. Go-Around / Rejected Landing",
+          facility: "{ARR} Tower",
+          pilotRequest: "{ARR} Tower, {CALLSIGN} going around!",
+          atcExpectation:
+            "{CALLSIGN}, roger, climb and maintain 3000 feet, fly runway heading.",
+          pilotReadback: "Climbing to 3000 on runway heading, {CALLSIGN}.",
+        },
+        {
+          id: "alternate_diversion",
+          phase: "alternate",
+          title: "13. Weather / Emergency Diversion",
+          facility: "Center / Approach",
+          pilotRequest:
+            "Center, {CALLSIGN}, weather bad at {ARR}, diverting to alternate {ALT}.",
+          atcExpectation:
+            "{CALLSIGN}, roger, cleared direct to alternate {ALT}, maintain {ALTITUDE}.",
+          pilotReadback:
+            "Cleared direct to {ALT}, maintaining {ALTITUDE}, {CALLSIGN}.",
+        },
+      ];
+
+      let templates =
+        JSON.parse(localStorage.getItem("pfhelper_templates")) ||
+        JSON.parse(JSON.stringify(defaultTemplates));
+
+      // Page Switching (Hub, ATCHelper, CHARTSHelper, Feedback)
+      function switchView(view) {
+        const views = ["hub", "atc", "charts", "feedback"];
+        views.forEach((v) => {
+          const el = document.getElementById(`view-${v}`);
+          const navBtn = document.getElementById(`nav-${v}-btn`);
+          if (v === view) {
+            if (el) el.classList.remove("hidden");
+            if (navBtn)
+              navBtn.className =
+                "px-3.5 py-1.5 rounded-lg theme-accent-bg text-white font-bold shadow-sm transition-all flex items-center gap-1.5";
+          } else {
+            if (el) el.classList.add("hidden");
+            if (navBtn)
+              navBtn.className =
+                "px-3.5 py-1.5 rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-1.5";
+          }
+        });
+
+        if (view === "charts") {
+          renderChartAirportList();
+          renderActiveChart();
+        }
+      }
+
+      // Initialize application on DOM ready
+      window.addEventListener("DOMContentLoaded", () => {
+        lucide.createIcons();
+        setupEventListeners();
+        updatePhoneticCallsign();
+        renderScriptCards();
+        renderChartAirportList();
+        toggleChartUploadSection();
+
+        // Paste Event listener for chart images
+        document.addEventListener("paste", handleGlobalPaste);
+      });
+
+      // Event Listener Setup
+      function setupEventListeners() {
+        const inputs = [
+          "callsign",
+          "dep-airport",
+          "arr-airport",
+          "alt-airport",
+          "aircraft-type",
+          "cruise-alt",
+          "dep-gate",
+          "arr-gate",
+          "dep-rwy",
+          "arr-rwy",
+        ];
+        inputs.forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.addEventListener("input", () => {
+              if (id === "callsign") updatePhoneticCallsign();
+              renderScriptCards();
+            });
+          }
+        });
+      }
+
+      // SHOW/HIDE CHART UPLOAD SECTION BASED ON FEEDBACK CATEGORY
+      function toggleChartUploadSection() {
+        const cat = document.getElementById("fb-category")?.value;
+        const section = document.getElementById("chart-upload-section");
+        if (!section) return;
+
+        if (cat === "Missing Airport Chart Submission") {
+          section.classList.remove("hidden");
+        } else {
+          section.classList.add("hidden");
+        }
+      }
+
+      // DRAG & DROP & FILE PASTE HANDLERS
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document
+          .getElementById("drop-zone")
+          ?.classList.add("border-indigo-500", "bg-indigo-500/10");
+      }
+
+      function handleDragLeave(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document
+          .getElementById("drop-zone")
+          ?.classList.remove("border-indigo-500", "bg-indigo-500/10");
+      }
+
+      function handleFileDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document
+          .getElementById("drop-zone")
+          ?.classList.remove("border-indigo-500", "bg-indigo-500/10");
+
+        const files = e.dataTransfer?.files;
+        if (files && files[0]) {
+          processImageFile(files[0]);
+        }
+      }
+
+      function handleFileSelect(e) {
+        const files = e.target.files;
+        if (files && files[0]) {
+          processImageFile(files[0]);
+        }
+      }
+
+      function handleGlobalPaste(e) {
+        if (
+          document.getElementById("view-feedback")?.classList.contains("hidden")
+        )
+          return;
+        const items = (e.clipboardData || e.originalEvent.clipboardData)?.items;
+        if (!items) return;
+
+        for (let item of items) {
+          if (item.type.indexOf("image") !== -1) {
+            const blob = item.getAsFile();
+            if (blob) {
+              processImageFile(blob);
+              showToast("Pasted image attached!");
+            }
+          }
+        }
+      }
+
+      function processImageFile(file) {
+        if (!file.type.startsWith("image/")) {
+          showToast("Please attach an image file.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          attachedChartBase64 = e.target.result;
+          document.getElementById("chart-preview-img").src =
+            attachedChartBase64;
+          document.getElementById("drop-zone-prompt").classList.add("hidden");
+          document
+            .getElementById("drop-zone-preview")
+            .classList.remove("hidden");
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function removeAttachedChart(e) {
+        if (e) e.stopPropagation();
+        attachedChartBase64 = null;
+        document.getElementById("chart-preview-img").src = "";
+        document.getElementById("drop-zone-preview").classList.add("hidden");
+        document.getElementById("drop-zone-prompt").classList.remove("hidden");
+        document.getElementById("file-input").value = "";
+      }
+
+      // CHARTSHELPER LOGIC & RENDERING
+      function renderChartAirportList() {
+        const container = document.getElementById("charts-airport-list");
+        if (!container) return;
+        container.innerHTML = "";
+
+        const query = (
+          document.getElementById("chart-search")?.value || ""
+        ).toLowerCase();
+
+        airportDatabase.forEach((ap) => {
+          if (
+            query &&
+            !ap.icao.toLowerCase().includes(query) &&
+            !ap.name.toLowerCase().includes(query) &&
+            !ap.region.toLowerCase().includes(query)
+          ) {
+            return;
+          }
+
+          const btn = document.createElement("button");
+          const isSelected = ap.icao === selectedChartAirport;
+
+          btn.className = `w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between group ${
+            isSelected
+              ? "theme-accent-subtle-bg theme-accent-border border-2 text-slate-900 dark:text-white font-bold"
+              : "bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
+          }`;
+
+          btn.onclick = () => {
+            selectedChartAirport = ap.icao;
+            renderChartAirportList();
+            renderActiveChart();
+          };
+
+          btn.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <span class="font-mono text-xs px-2 py-0.5 rounded ${
+              isSelected
+                ? "theme-accent-bg text-white"
+                : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300"
+            } font-bold">
+              ${ap.icao}
+            </span>
+            <div class="truncate">
+              <div class="text-xs font-bold truncate">${ap.name}</div>
+              <div class="text-[10px] text-slate-400 truncate">${
+                ap.region
+              }</div>
+            </div>
+          </div>
+          <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform"></i>
+        `;
+
+          container.appendChild(btn);
+        });
+
+        lucide.createIcons();
+      }
+
+      function filterChartAirports() {
+        renderChartAirportList();
+      }
+
+      function selectChartType(type) {
+        selectedChartType = type;
+        document.querySelectorAll(".chart-type-tab").forEach((btn) => {
+          if (btn.dataset.charttype === type) {
+            btn.className =
+              "chart-type-tab px-3 py-1.5 rounded-xl font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20";
+          } else {
+            btn.className =
+              "chart-type-tab px-3 py-1.5 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800";
+          }
+        });
+        renderActiveChart();
+      }
+
+      function renderActiveChart() {
+        const ap =
+          airportDatabase.find((a) => a.icao === selectedChartAirport) ||
+          airportDatabase[0];
+        const titleEl = document.getElementById("active-chart-airport-title");
+        const container = document.getElementById("chart-display-card");
+
+        if (titleEl) {
+          titleEl.innerHTML = `
+          <span class="font-mono text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">${ap.icao}</span>
+          <span>${ap.name}</span>
+          <span class="text-xs text-slate-400 font-normal">(${ap.region})</span>
+        `;
+        }
+
+        if (!container) return;
+
+        const chartUrl = ap.charts[selectedChartType];
+
+        if (chartUrl && chartUrl.trim() !== "") {
+          container.innerHTML = `
+          <div class="w-full h-full flex flex-col items-center">
+            <img src="${chartUrl}" alt="${ap.icao} ${selectedChartType} Chart" class="max-h-[650px] w-auto object-contain rounded-xl shadow-md" onerror="this.style.display='none'; document.getElementById('chart-fallback-box').classList.remove('hidden');">
+            <div id="chart-fallback-box" class="hidden text-center space-y-3 p-8">
+              <i data-lucide="file-warning" class="w-12 h-12 text-amber-500 mx-auto"></i>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">Chart Image Link Broken or Unavailable</h3>
+              <p class="text-xs text-slate-400 max-w-md">The image URL provided for this chart could not be loaded.</p>
+            </div>
+          </div>
+        `;
+        } else {
+          container.innerHTML = `
+          <div class="text-center space-y-4 max-w-md p-6">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500 mx-auto">
+              <i data-lucide="file-plus-2" class="w-7 h-7"></i>
+            </div>
+            <div>
+              <h3 class="text-base font-bold text-slate-900 dark:text-white">No ${selectedChartType.toUpperCase()} Chart Linked Yet</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                We haven't added the image link for <strong>${
+                  ap.icao
+                } - ${selectedChartType.toUpperCase()}</strong> yet. You can submit chart links or images through our Feedback tab!
+              </p>
+            </div>
+            <button onclick="switchView('feedback')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow transition-colors inline-flex items-center gap-1.5">
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              <span>Submit Chart via Feedback</span>
+            </button>
+          </div>
+        `;
+        }
+
+        lucide.createIcons();
+      }
+
+      // DISCORD WEBHOOK SUBMISSION LOGIC
+      async function submitFeedbackToDiscord(e) {
+        e.preventDefault();
+
+        const category = document.getElementById("fb-category").value;
+        const username =
+          document.getElementById("fb-username").value.trim() ||
+          "Anonymous Pilot";
+        const imageUrl = document.getElementById("fb-imageurl")?.value.trim();
+        const message = document.getElementById("fb-message").value.trim();
+        const submitBtn = document.getElementById("fb-submit-btn");
+
+        if (!message) {
+          showToast("Please enter a message!");
+          return;
+        }
+
+        const fields = [
+          { name: "User / Callsign", value: username, inline: true },
+          { name: "Category", value: category, inline: true },
+          { name: "Message / Description", value: message },
+        ];
+
+        if (imageUrl) {
+          fields.push({ name: "Image / Chart URL", value: imageUrl });
+        }
+
+        if (attachedChartBase64) {
+          fields.push({
+            name: "Attached Chart File",
+            value: "Image file attached in submission payload.",
+          });
+        }
+
+        const payload = {
+          embeds: [
+            {
+              title: `PFHelper Feedback: ${category}`,
+              color: 3818744, // Indigo
+              fields: fields,
+              footer: { text: "PFHelper Roblox Aviation Toolset" },
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        };
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin"></i><span>Sending...</span>`;
+        lucide.createIcons();
+
+        if (DISCORD_WEBHOOK_URL && DISCORD_WEBHOOK_URL.startsWith("http")) {
+          try {
+            const res = await fetch(DISCORD_WEBHOOK_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+
+            if (res.ok || res.status === 204) {
+              showToast("Feedback sent to Discord!");
+              document.getElementById("fb-message").value = "";
+              if (document.getElementById("fb-imageurl"))
+                document.getElementById("fb-imageurl").value = "";
+              removeAttachedChart();
+            } else {
+              showToast("Failed to post to webhook!");
+            }
+          } catch (err) {
+            showToast("Network error submitting feedback.");
+          }
+        } else {
+          setTimeout(() => {
+            showToast("Feedback logged! (Configure DISCORD_WEBHOOK_URL in JS)");
+            document.getElementById("fb-message").value = "";
+            if (document.getElementById("fb-imageurl"))
+              document.getElementById("fb-imageurl").value = "";
+            removeAttachedChart();
+          }, 800);
+        }
+
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Send Feedback</span>`;
+        lucide.createIcons();
+      }
+
+      // Convert Callsign to Phonetic Readout
+      function updatePhoneticCallsign() {
+        const cs = document
+          .getElementById("callsign")
+          .value.trim()
+          .toUpperCase();
+        let phoneticResult = [];
+
+        for (let char of cs) {
+          if (natoAlphabet[char]) {
+            phoneticResult.push(natoAlphabet[char]);
+          } else {
+            phoneticResult.push(char);
+          }
+        }
+
+        document.getElementById("callsign-phonetic").textContent =
+          phoneticResult.length > 0
+            ? phoneticResult.join(" ")
+            : "Enter callsign...";
+      }
+
+      // Toggle Flight Rule (IFR vs VFR)
+      function setFlightRule(rule) {
+        currentFlightRule = rule;
+        const ifrBtn = document.getElementById("rule-ifr");
+        const vfrBtn = document.getElementById("rule-vfr");
+
+        if (rule === "IFR") {
+          ifrBtn.className =
+            "py-1.5 font-bold rounded-lg theme-accent-text bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-center transition-all";
+          vfrBtn.className =
+            "py-1.5 font-medium rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-center transition-all";
+        } else {
+          vfrBtn.className =
+            "py-1.5 font-bold rounded-lg theme-accent-text bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm text-center transition-all";
+          ifrBtn.className =
+            "py-1.5 font-medium rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-center transition-all";
+        }
+
+        renderScriptCards();
+      }
+
+      // Filter Scripts by Phase
+      function filterPhase(phase) {
+        activePhaseFilter = phase;
+        document.querySelectorAll(".phase-tab").forEach((btn) => {
+          if (btn.dataset.phase === phase) {
+            btn.className =
+              "phase-tab px-3 py-1.5 rounded-xl font-bold theme-accent-subtle-bg theme-accent-text border theme-accent-border transition-all";
+          } else {
+            btn.className =
+              "phase-tab px-3 py-1.5 rounded-xl font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all";
+          }
+        });
+        renderScriptCards();
+      }
+
+      // Compact Route Preset String Generator & Parser
+      function generateRouteCode() {
+        const cs = document.getElementById("callsign").value.trim() || "NONE";
+        const dep =
+          document.getElementById("dep-airport").value.trim() || "NONE";
+        const arr =
+          document.getElementById("arr-airport").value.trim() || "NONE";
+        const alt =
+          document.getElementById("alt-airport").value.trim() || "NONE";
+        const ac =
+          document.getElementById("aircraft-type").value.trim() || "NONE";
+        const altitud =
+          document.getElementById("cruise-alt").value.trim() || "NONE";
+        const dgate =
+          document.getElementById("dep-gate").value.trim() || "NONE";
+        const agate =
+          document.getElementById("arr-gate").value.trim() || "NONE";
+        const drwy = document.getElementById("dep-rwy").value.trim() || "NONE";
+        const arwy = document.getElementById("arr-rwy").value.trim() || "NONE";
+
+        const code = `PF-${cs}-${dep}-${arr}-${alt}-${ac}-${altitud}-${dgate}-${agate}-${drwy}-${arwy}-${currentFlightRule}`;
+        document.getElementById("route-code-input").value = code;
+        copyText(code);
+        showToast("Route Code copied to clipboard!");
+      }
+
+      function loadRouteCode() {
+        const raw = document.getElementById("route-code-input").value.trim();
+        if (!raw.startsWith("PF-")) {
+          showToast("Invalid code! Must start with PF-");
+          return;
+        }
+
+        const parts = raw.split("-");
+        if (parts.length >= 11) {
+          document.getElementById("callsign").value =
+            parts[1] === "NONE" ? "" : parts[1];
+          document.getElementById("dep-airport").value =
+            parts[2] === "NONE" ? "" : parts[2];
+          document.getElementById("arr-airport").value =
+            parts[3] === "NONE" ? "" : parts[3];
+          document.getElementById("alt-airport").value =
+            parts[4] === "NONE" ? "" : parts[4];
+          document.getElementById("aircraft-type").value =
+            parts[5] === "NONE" ? "" : parts[5];
+          document.getElementById("cruise-alt").value =
+            parts[6] === "NONE" ? "" : parts[6];
+          document.getElementById("dep-gate").value =
+            parts[7] === "NONE" ? "" : parts[7];
+          document.getElementById("arr-gate").value =
+            parts[8] === "NONE" ? "" : parts[8];
+          document.getElementById("dep-rwy").value =
+            parts[9] === "NONE" ? "" : parts[9];
+          document.getElementById("arr-rwy").value =
+            parts[10] === "NONE" ? "" : parts[10];
+          if (parts[11]) setFlightRule(parts[11]);
+
+          updatePhoneticCallsign();
+          renderScriptCards();
+          showToast("Loaded route from code!");
+        } else {
+          showToast("Invalid route string format!");
+        }
+      }
+
+      // Replace Placeholders
+      function processTemplate(str) {
+        const callsign = (
+          document.getElementById("callsign").value || "[CALLSIGN]"
+        ).toUpperCase();
+        const dep = (
+          document.getElementById("dep-airport").value || "[DEP]"
+        ).toUpperCase();
+        const arr = (
+          document.getElementById("arr-airport").value || "[ARR]"
+        ).toUpperCase();
+        const alt = (
+          document.getElementById("alt-airport").value || "[ALT]"
+        ).toUpperCase();
+        const aircraft = (
+          document.getElementById("aircraft-type").value || "[AIRCRAFT]"
+        ).toUpperCase();
+        const altitude = (
+          document.getElementById("cruise-alt").value || "[ALTITUDE]"
+        ).toUpperCase();
+        const depGate =
+          document.getElementById("dep-gate").value || "[DEP GATE]";
+        const arrGate =
+          document.getElementById("arr-gate").value || "[ARR GATE]";
+        const depRwy = (
+          document.getElementById("dep-rwy").value || "[RWY]"
+        ).toUpperCase();
+        const arrRwy = (
+          document.getElementById("arr-rwy").value || "[RWY]"
+        ).toUpperCase();
+
+        let out = str
+          .replaceAll("{CALLSIGN}", callsign)
+          .replaceAll("{DEP}", dep)
+          .replaceAll("{ARR}", arr)
+          .replaceAll("{ALT}", alt)
+          .replaceAll("{AIRCRAFT_TYPE}", aircraft)
+          .replaceAll("{ALTITUDE}", altitude)
+          .replaceAll("{DEP_GATE}", depGate)
+          .replaceAll("{ARR_GATE}", arrGate)
+          .replaceAll("{RUNWAY_DEP}", depRwy)
+          .replaceAll("{RUNWAY_ARR}", arrRwy)
+          .replaceAll("{RULE}", currentFlightRule);
+
+        return out;
+      }
+
+      // Render Script Output Cards
+      function renderScriptCards() {
+        const container = document.getElementById("script-cards-container");
+        if (!container) return;
+        container.innerHTML = "";
+
+        const filtered = templates.filter(
+          (t) => activePhaseFilter === "all" || t.phase === activePhaseFilter
+        );
+
+        if (filtered.length === 0) {
+          container.innerHTML = `
+          <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 dynamic-card p-8 text-center text-slate-400">
+            <i data-lucide="radio-off" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+            <p>No scripts match this filter phase.</p>
+          </div>
+        `;
+          lucide.createIcons();
+          return;
+        }
+
+        filtered.forEach((item) => {
+          const pilotReq = processTemplate(item.pilotRequest);
+          const atcExp = processTemplate(item.atcExpectation);
+          const pilotRead = processTemplate(item.pilotReadback);
+
+          const isEmergency = item.phase === "emergency";
+          const isAlternate = item.phase === "alternate";
+
+          const card = document.createElement("div");
+          card.className = `bg-white dark:bg-slate-900 border dynamic-card p-5 shadow-sm flex flex-col gap-4 transition-all ${
+            isEmergency
+              ? "border-rose-300 dark:border-rose-900/50 bg-rose-50/30 dark:bg-rose-950/10"
+              : isAlternate
+              ? "border-amber-300 dark:border-amber-900/50 bg-amber-50/30 dark:bg-amber-950/10"
+              : "border-slate-200 dark:border-slate-800"
+          }`;
+
+          card.innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/80 pb-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold px-2 py-0.5 rounded-md font-mono ${
+                isEmergency
+                  ? "bg-rose-500/10 text-rose-500 border border-rose-500/20"
+                  : isAlternate
+                  ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                  : "bg-slate-100 dark:bg-slate-800 theme-accent-text border border-slate-200 dark:border-slate-700"
+              }">
+                ${item.title.split(".")[0]}
+              </span>
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white">${item.title.substring(
+                item.title.indexOf(".") + 1
+              )}</h3>
+            </div>
+            <span class="text-xs font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1 bg-slate-100 dark:bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-800">
+              <i data-lucide="antenna" class="w-3 h-3 theme-accent-text"></i>
+              ${processTemplate(item.facility)}
+            </span>
+          </div>
+
+          <!-- Dialogue Steps -->
+          <div class="space-y-3 font-mono text-xs">
+            
+            <!-- Step 1: Pilot Request -->
+            <div class="bg-slate-50 dark:bg-slate-950 rounded-xl p-3 border border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="space-y-1">
+                <span class="text-[10px] font-sans uppercase tracking-wider ${
+                  isEmergency ? "text-rose-500" : "theme-accent-text"
+                } font-bold flex items-center gap-1">
+                  <i data-lucide="mic" class="w-3 h-3"></i> You (Pilot Initial Request)
+                </span>
+                <p class="text-slate-800 dark:text-slate-200 font-medium select-all leading-relaxed">${escapeHtml(
+                  pilotReq
+                )}</p>
+              </div>
+              <button onclick="copyText('${escapeQuotes(
+                pilotReq
+              )}', this)" class="self-start sm:self-center shrink-0 flex items-center gap-1 text-[11px] theme-accent-bg theme-accent-bg-hover text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">
+                <i data-lucide="copy" class="w-3 h-3"></i>
+                <span>Copy</span>
+              </button>
+            </div>
+
+            <!-- Step 2: Controller Response -->
+            <div class="bg-slate-50/50 dark:bg-slate-950/40 rounded-xl p-3 border border-slate-100 dark:border-slate-800/50 space-y-1">
+              <span class="text-[10px] font-sans uppercase tracking-wider text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                <i data-lucide="headphones" class="w-3 h-3"></i> ATC Response (Listen to Controller)
+              </span>
+              <p class="text-slate-500 dark:text-slate-400 italic leading-relaxed">${escapeHtml(
+                atcExp
+              )}</p>
+            </div>
+
+            <!-- Step 3: Pilot Readback -->
+            <div class="bg-slate-50 dark:bg-slate-950 rounded-xl p-3 border border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div class="space-y-1">
+                <span class="text-[10px] font-sans uppercase tracking-wider ${
+                  isEmergency ? "text-rose-500" : "theme-accent-text"
+                } font-bold flex items-center gap-1">
+                  <i data-lucide="check-circle-2" class="w-3 h-3"></i> You (Mandatory Readback)
+                </span>
+                <p class="text-slate-800 dark:text-slate-200 font-medium select-all leading-relaxed">${escapeHtml(
+                  pilotRead
+                )}</p>
+              </div>
+              <button onclick="copyText('${escapeQuotes(
+                pilotRead
+              )}', this)" class="self-start sm:self-center shrink-0 flex items-center gap-1 text-[11px] theme-accent-bg theme-accent-bg-hover text-white font-bold px-3 py-1.5 rounded-lg transition-all shadow-sm">
+                <i data-lucide="copy" class="w-3 h-3"></i>
+                <span>Copy</span>
+              </button>
+            </div>
+
+          </div>
+        `;
+
+          container.appendChild(card);
+        });
+
+        lucide.createIcons();
+      }
+
+      // Copy Single Line
+      function copyText(text, buttonEl) {
+        if (!text) return;
+
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text);
+        } else {
+          const textArea = document.createElement("textarea");
+          textArea.value = text;
+          textArea.style.position = "fixed";
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          try {
+            document.execCommand("copy");
+          } catch (err) {}
+          document.body.removeChild(textArea);
+        }
+
+        if (buttonEl) {
+          const originalContent = buttonEl.innerHTML;
+          buttonEl.innerHTML = `<i data-lucide="check" class="w-3 h-3 text-white"></i><span>Copied!</span>`;
+          buttonEl.classList.remove("theme-accent-bg");
+          buttonEl.classList.add("bg-emerald-600", "text-white");
+          lucide.createIcons();
+
+          setTimeout(() => {
+            buttonEl.innerHTML = originalContent;
+            buttonEl.classList.remove("bg-emerald-600", "text-white");
+            buttonEl.classList.add("theme-accent-bg");
+            lucide.createIcons();
+          }, 1800);
+        }
+
+        showToast("Line copied for Roblox chat!");
+      }
+
+      // Copy All Script Lines
+      function copyAllVisibleScripts() {
+        const filtered = templates.filter(
+          (t) => activePhaseFilter === "all" || t.phase === activePhaseFilter
+        );
+        let outputBlock = `=== PFHELPER - ATC SCRIPTS ===\n`;
+        const cs =
+          document.getElementById("callsign").value.toUpperCase() ||
+          "UNSPECIFIED";
+        const dep =
+          document.getElementById("dep-airport").value.toUpperCase() ||
+          "UNSPECIFIED";
+        const arr =
+          document.getElementById("arr-airport").value.toUpperCase() ||
+          "UNSPECIFIED";
+        const alt =
+          document.getElementById("alt-airport").value.toUpperCase() ||
+          "UNSPECIFIED";
+
+        outputBlock += `Callsign: ${cs} | Route: ${dep} -> ${arr} (Alt: ${alt})\n\n`;
+
+        filtered.forEach((t) => {
+          outputBlock += `[${t.title}] (${processTemplate(t.facility)})\n`;
+          outputBlock += `PILOT: ${processTemplate(t.pilotRequest)}\n`;
+          outputBlock += `READBACK: ${processTemplate(t.pilotReadback)}\n\n`;
+        });
+
+        copyText(outputBlock);
+        showToast("Full script log copied to clipboard!");
+      }
+
+      // Reset All Inputs
+      function resetInputs() {
+        document.getElementById("callsign").value = "";
+        document.getElementById("dep-airport").value = "";
+        document.getElementById("arr-airport").value = "";
+        document.getElementById("alt-airport").value = "";
+        document.getElementById("aircraft-type").value = "";
+        document.getElementById("cruise-alt").value = "";
+        document.getElementById("dep-gate").value = "";
+        document.getElementById("arr-gate").value = "";
+        document.getElementById("dep-rwy").value = "";
+        document.getElementById("arr-rwy").value = "";
+        document.getElementById("route-code-input").value = "";
+
+        updatePhoneticCallsign();
+        renderScriptCards();
+        showToast("All fields cleared.");
+      }
+
+      // Customization Modal Logic
+      function openCustomizeModal() {
+        const container = document.getElementById("template-editors");
+        container.innerHTML = "";
+
+        templates.forEach((t, idx) => {
+          const itemDiv = document.createElement("div");
+          itemDiv.className =
+            "bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3";
+          itemDiv.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="font-bold theme-accent-text text-xs">${t.title}</span>
+            <span class="text-[10px] bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-400 font-mono">${
+              t.phase
+            }</span>
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Pilot Request:</label>
+            <input type="text" data-idx="${idx}" data-field="pilotRequest" value="${escapeHtml(
+            t.pilotRequest
+          )}" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono text-slate-800 dark:text-slate-200">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Pilot Readback:</label>
+            <input type="text" data-idx="${idx}" data-field="pilotReadback" value="${escapeHtml(
+            t.pilotReadback
+          )}" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono theme-accent-text font-bold">
+          </div>
+        `;
+          container.appendChild(itemDiv);
+        });
+
+        document.getElementById("customize-modal").classList.remove("hidden");
+      }
+
+      function closeCustomizeModal() {
+        document.getElementById("customize-modal").classList.add("hidden");
+      }
+
+      function saveCustomTemplates() {
+        const inputs = document.querySelectorAll("#template-editors input");
+        inputs.forEach((inp) => {
+          const idx = inp.dataset.idx;
+          const field = inp.dataset.field;
+          if (templates[idx]) {
+            templates[idx][field] = inp.value;
+          }
+        });
+
+        localStorage.setItem("pfhelper_templates", JSON.stringify(templates));
+        closeCustomizeModal();
+        renderScriptCards();
+        showToast("Custom templates saved!");
+      }
+
+      function restoreDefaultTemplates() {
+        templates = JSON.parse(JSON.stringify(defaultTemplates));
+        localStorage.removeItem("pfhelper_templates");
+        closeCustomizeModal();
+        renderScriptCards();
+        showToast("Restored default templates.");
+      }
+
+      // Appearance & Color Customizer Modal
+      function openAppearanceModal() {
+        document.getElementById("appearance-modal").classList.remove("hidden");
+      }
+      function closeAppearanceModal() {
+        document.getElementById("appearance-modal").classList.add("hidden");
+      }
+
+      const themePalettes = {
+        sky: {
+          main: "#0284c7",
+          hover: "#0369a1",
+          light: "#38bdf8",
+          subtle: "rgba(56, 189, 248, 0.12)",
+          border: "rgba(56, 189, 248, 0.35)",
+        },
+        emerald: {
+          main: "#059669",
+          hover: "#047857",
+          light: "#34d399",
+          subtle: "rgba(52, 211, 153, 0.12)",
+          border: "rgba(52, 211, 153, 0.35)",
+        },
+        indigo: {
+          main: "#4f46e5",
+          hover: "#4338ca",
+          light: "#818cf8",
+          subtle: "rgba(129, 140, 248, 0.12)",
+          border: "rgba(129, 140, 248, 0.35)",
+        },
+        amber: {
+          main: "#d97706",
+          hover: "#b45309",
+          light: "#fbbf24",
+          subtle: "rgba(251, 191, 36, 0.12)",
+          border: "rgba(251, 191, 36, 0.35)",
+        },
+        rose: {
+          main: "#e11d48",
+          hover: "#be123c",
+          light: "#fb7185",
+          subtle: "rgba(251, 113, 133, 0.12)",
+          border: "rgba(251, 113, 133, 0.35)",
+        },
+        purple: {
+          main: "#9333ea",
+          hover: "#7e22ce",
+          light: "#c084fc",
+          subtle: "rgba(192, 132, 252, 0.12)",
+          border: "rgba(192, 132, 252, 0.35)",
+        },
+        cyan: {
+          main: "#0891b2",
+          hover: "#0e7490",
+          light: "#22d3ee",
+          subtle: "rgba(34, 211, 238, 0.12)",
+          border: "rgba(34, 211, 238, 0.35)",
+        },
+        lime: {
+          main: "#65a30d",
+          hover: "#4d7c0f",
+          light: "#a3e635",
+          subtle: "rgba(163, 230, 53, 0.12)",
+          border: "rgba(163, 230, 53, 0.35)",
+        },
+      };
+
+      function applyThemeColor(colorKey) {
+        const pal = themePalettes[colorKey];
+        if (!pal) return;
+
+        setCssVariables(pal.main, pal.hover, pal.light, pal.subtle, pal.border);
+
+        const preview = document.getElementById("custom-wheel-preview");
+        if (preview) preview.style.backgroundColor = pal.main;
+        const hexLabel = document.getElementById("custom-hex-label");
+        if (hexLabel) hexLabel.textContent = pal.main;
+        const hexInput = document.getElementById("custom-hex-input");
+        if (hexInput) hexInput.value = pal.main;
+
+        showToast(`Color theme set to ${colorKey.toUpperCase()}!`);
+      }
+
+      // Custom Color Wheel Spectrum Handler
+      function handleHueSliderChange(hueVal) {
+        const hex = hslToHex(hueVal, 85, 45);
+        applyCustomHexColor(hex);
+      }
+
+      function hslToHex(h, s, l) {
+        s /= 100;
+        l /= 100;
+        let c = (1 - Math.abs(2 * l - 1)) * s,
+          x = c * (1 - Math.abs(((h / 60) % 2) - 1)),
+          m = l - c / 2,
+          r = 0,
+          g = 0,
+          b = 0;
+        if (0 <= h && h < 60) {
+          r = c;
+          g = x;
+          b = 0;
+        } else if (60 <= h && h < 120) {
+          r = x;
+          g = c;
+          b = 0;
+        } else if (120 <= h && h < 180) {
+          r = 0;
+          g = c;
+          b = x;
+        } else if (180 <= h && h < 240) {
+          r = 0;
+          g = x;
+          b = c;
+        } else if (240 <= h && h < 300) {
+          r = x;
+          g = 0;
+          b = c;
+        } else if (300 <= h && h < 360) {
+          r = c;
+          g = 0;
+          b = x;
+        }
+        r = Math.round((r + m) * 255)
+          .toString(16)
+          .padStart(2, "0");
+        g = Math.round((g + m) * 255)
+          .toString(16)
+          .padStart(2, "0");
+        b = Math.round((b + m) * 255)
+          .toString(16)
+          .padStart(2, "0");
+        return `#${r}${g}${b}`;
+      }
+
+      function applyCustomHexColor(hex) {
+        if (!hex || !hex.startsWith("#")) return;
+        const subtle = `${hex}20`;
+        const border = `${hex}50`;
+        setCssVariables(hex, hex, hex, subtle, border);
+
+        const preview = document.getElementById("custom-wheel-preview");
+        if (preview) preview.style.backgroundColor = hex;
+        const hexLabel = document.getElementById("custom-hex-label");
+        if (hexLabel) hexLabel.textContent = hex;
+        const hexInput = document.getElementById("custom-hex-input");
+        if (hexInput && hexInput.value !== hex) hexInput.value = hex;
+
+        showToast(`Custom theme color applied!`);
+      }
+
+      function setCssVariables(main, hover, light, subtle, border) {
+        const root = document.documentElement;
+        root.style.setProperty("--accent-main", main);
+        root.style.setProperty("--accent-hover", hover);
+        root.style.setProperty("--accent-light", light);
+        root.style.setProperty("--accent-bg-subtle", subtle);
+        root.style.setProperty("--accent-border", border);
+      }
+
+      function applyTextScale(scale) {
+        document.documentElement.style.setProperty("--text-scale", scale);
+        showToast(`Text scaling updated!`);
+      }
+
+      function applyBorderRadius(rad) {
+        document.documentElement.style.setProperty("--card-radius", rad);
+        showToast(`Card corner style updated!`);
+      }
+
+      // Toggle Dark/Light Mode
+      function toggleTheme() {
+        document.documentElement.classList.toggle("dark");
+        showToast(`Theme switched!`);
+      }
+
+      // Toast Utility
+      function showToast(message) {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className =
+          "bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 border border-slate-800 dark:border-slate-200 px-3.5 py-2 rounded-xl text-xs font-bold shadow-xl flex items-center gap-2 pointer-events-auto transition-all transform translate-y-2 opacity-0";
+        toast.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 theme-accent-text"></i><span>${message}</span>`;
+
+        container.appendChild(toast);
+        lucide.createIcons();
+
+        requestAnimationFrame(() => {
+          toast.classList.remove("translate-y-2", "opacity-0");
+        });
+
+        setTimeout(() => {
+          toast.classList.add("opacity-0", "translate-y-2");
+          setTimeout(() => toast.remove(), 2200);
+        }, 2200);
+      }
+
+      // String Escaping
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function escapeQuotes(str) {
+        return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+      }
+    </script>
+  </body>
+</html>
