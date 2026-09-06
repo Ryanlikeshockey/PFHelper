@@ -1,7 +1,7 @@
+# Cloudflare Pages/Workers static asset security headers.
+# Keep the policy aligned with the external CDN assets used by index.html.
+
 /*
-  Cloudflare Pages/Workers static asset security headers.
-  Keep the policy aligned with the external CDN assets used by index.html.
-*/
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
